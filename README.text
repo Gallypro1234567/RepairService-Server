@@ -1,4 +1,7 @@
 Entity Framewoker Core
 Entity Framewoker Core.Design
 Entity Framewoker Core.SqlServer
-"dotnet tool install -g dotnet-ef"
+Entity Framewoker Core.Tools or Command "dotnet tool install -g dotnet-ef"
+
+version 5.04 for all EF
+
