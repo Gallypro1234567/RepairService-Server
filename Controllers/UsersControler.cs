@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
-using WorkAppReactAPI.Data; 
-using WorkAppReactAPI.Models;
+using WorkAppReactAPI.Data.Interface;
 
 namespace WorkAppReactAPI.Controllers
 {
@@ -18,16 +18,15 @@ namespace WorkAppReactAPI.Controllers
     
         }
         [HttpGet]
-        public ActionResult<IEnumerable<User>> getAllUser()
+        public ActionResult<DynamicResult> getAllUser()
         {
             var listuser = _repository.getAllUser();
             return Ok(listuser);
         }
         [HttpGet("{id}")]
-        public ActionResult<User> getUserById(Guid id)
+        public ActionResult<DynamicResult> getUserById(Guid id)
         {
-            var user = _repository.GetUserById(id);
-         
+            var user = _repository.GetUserById(id); 
             return Ok(user);
         }
     }

@@ -1,13 +1,19 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using WorkAppReactAPI.Data;
+using WorkAppReactAPI.Data.Interface;
+
+
 
 namespace WorkAppReactAPI
 {
@@ -23,8 +29,35 @@ namespace WorkAppReactAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<JwtConfig>(Configuration.GetSection("JwtConfig"));
             services.AddDbContext<WorkerServiceContext>(opt => opt.UseSqlServer
                 (Configuration.GetConnectionString("WorkerServiceConnection")));
+
+            services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(jwt =>
+            {
+                var key = Encoding.ASCII.GetBytes(Configuration["JwtConfig:Secret"]);
+                jwt.SaveToken = true;
+                jwt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    RequireExpirationTime = false
+                };
+            });
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                 .AddEntityFrameworkStores<WorkerServiceContext>();
+            // Add DI
+            services.AddScoped<IUserRepo, SqlUserRepo>();
+            services.AddScoped<IServiceRepo, SqlServiceRepo>();
+
             services.AddControllersWithViews();
 
             // In production, the React files will be served from this directory
@@ -32,8 +65,8 @@ namespace WorkAppReactAPI
             {
                 configuration.RootPath = "ClientApp/build";
             });
-           // services.AddScoped<IUserRepo, MockUserRepo>();
-            services.AddScoped<IUserRepo, SqlUserRepo>();
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,8 +86,11 @@ namespace WorkAppReactAPI
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
-
+            //authentification
+            app.UseAuthentication();
             app.UseRouting();
+            app.UseAuthorization();
+            
 
             app.UseEndpoints(endpoints =>
             {
