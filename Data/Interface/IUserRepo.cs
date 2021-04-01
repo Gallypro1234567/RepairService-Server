@@ -1,4 +1,5 @@
 using System;
+using WorkAppReactAPI.Configguration;
 using WorkAppReactAPI.Controllers;
 
 namespace WorkAppReactAPI.Data.Interface

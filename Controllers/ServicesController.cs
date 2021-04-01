@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WorkAppReactAPI.Configguration;
 using WorkAppReactAPI.Data.Interface;
 
 namespace WorkAppReactAPI.Controllers

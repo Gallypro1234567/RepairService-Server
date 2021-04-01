@@ -14,6 +14,9 @@ namespace WorkAppReactAPI.Dtos.Requests
 
         [Required] 
         public string Password { set; get; }
+        
+        [Required] 
+        public string Fullname { set; get; }
 
     }
 }

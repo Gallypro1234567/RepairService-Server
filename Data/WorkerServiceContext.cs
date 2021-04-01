@@ -4,13 +4,13 @@ using WorkAppReactAPI.Models;
 
 namespace WorkAppReactAPI.Data
 {
-    public class WorkerServiceContext : IdentityDbContext
+    public class WorkerServiceContext : DbContext
     {
         public WorkerServiceContext(DbContextOptions<WorkerServiceContext> opt) : base(opt)
         {
 
         }
-        public DbSet<User> Partner { set; get; }
+        public DbSet<User> Users { set; get; }
         public DbSet<Customer> Customers { set; get; }
         public DbSet<Worker> Workers { set; get; }
         public DbSet<Booking> Bookings { set; get; }

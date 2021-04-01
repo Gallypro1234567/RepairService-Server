@@ -1,29 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
+
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using WorkAppReactAPI.Asset;
+using WorkAppReactAPI.Configguration;
 using WorkAppReactAPI.Data;
 using WorkAppReactAPI.Dtos.Requests;
+using WorkAppReactAPI.Models;
 using WorkAppReactAPI.Models.Responses;
 
 namespace WorkAppReactAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthManagementController : ControllerBase
+    public class AuthController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _Usermanager;
+
+        private readonly WorkerServiceContext _context;
+
         private readonly JwtConfig _jwtConfig;
-        public AuthManagementController(UserManager<IdentityUser> userManager, IOptionsMonitor<JwtConfig> optionsMonitor)
+        public AuthController(WorkerServiceContext context, IOptionsMonitor<JwtConfig> optionsMonitor)
         {
-            _Usermanager = userManager;
+            _context = context;
             _jwtConfig = optionsMonitor.CurrentValue;
         }
         [HttpPost]
@@ -32,20 +38,25 @@ namespace WorkAppReactAPI.Controllers
         {
             if (ModelState.IsValid)
             {
-                var existingUser = await _Usermanager.FindByEmailAsync(user.Email);
+                var existingUser = await _context.Users.FirstOrDefaultAsync(c => c.Phone == user.Phone);
                 if (existingUser != null)
                 {
                     return BadRequest(new RegistrationResponse
                     {
-                        Errors = new List<string>(){
-                                                "Email arleay in use"
-                                            },
+                        Errors = new List<string>()
+                            {
+                                 "Phone arleay in use"
+                            },
                         Success = false
                     });
                 }
-                var newuser = new IdentityUser { Email = user.Email, UserName = user.Email };
-                var isCreated = await _Usermanager.CreateAsync(newuser, user.Password);
-                if (isCreated.Succeeded)
+                var key = Encryptor.Encrypt(user.Password);
+
+                var newuser = new User { Id = Guid.NewGuid(), Phone = user.Phone, Password = key, Fullname = user.Fullname, Email = user.Email };
+                await _context.Users.AddAsync(newuser);
+                var isCreated = await _context.SaveChangesAsync();
+
+                if (isCreated > 0)
                 {
                     var jwttoken = GenerateJwtToken(newuser);
                     return Ok(new RegistrationResponse
@@ -58,7 +69,7 @@ namespace WorkAppReactAPI.Controllers
                 {
                     return BadRequest(new RegistrationResponse
                     {
-                        Errors = isCreated.Errors.Select(x => x.Description).ToList(),
+                        Errors = new List<string>() { "Error" },
                         Success = false
                     });
                 }
@@ -74,11 +85,11 @@ namespace WorkAppReactAPI.Controllers
         }
         [HttpPost]
         [Route("Login")]
-        public async Task<IActionResult> Login([FromBody] UserLoginRequest user)
+        public async Task<IActionResult> Login([FromBody] UserLoginRequest user,[FromHeader] AuthResult headers)
         {
             if (ModelState.IsValid)
             {
-                var existingUser = await _Usermanager.FindByEmailAsync(user.Email);
+                var existingUser = await _context.Users.FirstOrDefaultAsync(c => c.Phone == user.Phone);
                 if (existingUser == null)
                 {
                     return BadRequest(new RegistrationResponse
@@ -89,8 +100,10 @@ namespace WorkAppReactAPI.Controllers
                         Success = false
                     });
                 }
-                var isCorrect = await _Usermanager.CheckPasswordAsync(existingUser, user.Password);
-                if (!isCorrect)
+                var key = Encryptor.Encrypt(user.Password);
+                var isCorrect = await _context.Users.FirstOrDefaultAsync(c => c.Password == key);
+
+                if (isCorrect == null)
                 {
                     return BadRequest(new RegistrationResponse
                     {
@@ -116,14 +129,14 @@ namespace WorkAppReactAPI.Controllers
                 Success = false
             });
         }
-        private string GenerateJwtToken(IdentityUser user)
+        private string GenerateJwtToken(User user)
         {
             var jwtTokenhandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]{
-                      new Claim ("Id", user.Id),
+                      new Claim ("Id", user.Id.ToString()),
                       new Claim (JwtRegisteredClaimNames.Email, user.Email),
                       new Claim (JwtRegisteredClaimNames.Sub, user.Email),
                       new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
@@ -134,8 +147,6 @@ namespace WorkAppReactAPI.Controllers
             var token = jwtTokenhandler.CreateToken(tokenDescriptor);
             var jwttoken = jwtTokenhandler.WriteToken(token);
             return jwttoken;
-
-
         }
     }
 }

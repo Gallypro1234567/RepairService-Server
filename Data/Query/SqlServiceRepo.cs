@@ -1,4 +1,5 @@
 using WorkAppReactAPI.Assets;
+using WorkAppReactAPI.Configguration;
 using WorkAppReactAPI.Controllers;
 using WorkAppReactAPI.Data.Interface;
 

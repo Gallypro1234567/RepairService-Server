@@ -52,8 +52,9 @@ namespace WorkAppReactAPI
                     RequireExpirationTime = false
                 };
             });
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                 .AddEntityFrameworkStores<WorkerServiceContext>();
+            // services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            //      .AddEntityFrameworkStores<WorkerServiceContext>();
+
             // Add DI
             services.AddScoped<IUserRepo, SqlUserRepo>();
             services.AddScoped<IServiceRepo, SqlServiceRepo>();
@@ -86,11 +87,11 @@ namespace WorkAppReactAPI
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
-            //authentification
+           
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-            
+
 
             app.UseEndpoints(endpoints =>
             {
