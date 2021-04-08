@@ -12,8 +12,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using WorkAppReactAPI.Data;
 using WorkAppReactAPI.Data.Interface;
-
-
+using Microsoft.AspNetCore.Authorization;
+using WorkAppReactAPI.Configuration;
+using WorkAppReactAPI.Data.SqlQuery;
+using Microsoft.AspNetCore.Http;
 
 namespace WorkAppReactAPI
 {
@@ -52,14 +54,21 @@ namespace WorkAppReactAPI
                     RequireExpirationTime = false
                 };
             });
-            // services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-            //      .AddEntityFrameworkStores<WorkerServiceContext>();
+
+            // services.AddTransient<IAuthorizationPolicyProvider, MyAuthorizationPolicy>();
+            // services.AddSingleton<IAuthorizationHandler, MyAuthorizationHandler>();
 
             // Add DI
-            services.AddScoped<IUserRepo, SqlUserRepo>();
-            services.AddScoped<IServiceRepo, SqlServiceRepo>();
+            services.AddScoped<IServiceRepo, ServiceRepo>();
+            services.AddScoped<ICustomerRepo, CustomerRepo>();
+            services.AddScoped<IUserRepo, UserRepo>();
 
-            services.AddControllersWithViews();
+            services.AddHttpContextAccessor();
+
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson(options =>
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -87,7 +96,7 @@ namespace WorkAppReactAPI
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
-           
+
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();

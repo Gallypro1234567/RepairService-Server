@@ -1,11 +1,19 @@
-using WorkAppReactAPI.Configguration;
-using WorkAppReactAPI.Controllers;
+using System;
+using System.Threading.Tasks;
+using WorkAppReactAPI.Configuration;
+using WorkAppReactAPI.Dtos.Requests;
+
 
 namespace WorkAppReactAPI.Data.Interface
 {
     public interface IServiceRepo
     {
-        DynamicResult getListService();
-        
+        Task<DynamicResult> getListService();
+
+        Task<DynamicResult> AddService(ServicePost model);
+
+        Task<DynamicResult> UpdateService(ServicePost model);
+
+        Task<DynamicResult> DeleteService(ServicePost model);
     }
 }

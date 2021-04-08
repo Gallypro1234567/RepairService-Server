@@ -10,8 +10,8 @@ using WorkAppReactAPI.Data;
 namespace WorkAppReactAPI.Migrations
 {
     [DbContext(typeof(WorkerServiceContext))]
-    [Migration("20210330103058_Initial3")]
-    partial class Initial3
+    [Migration("20210408082152_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -172,15 +172,20 @@ namespace WorkAppReactAPI.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Note")
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -193,6 +198,9 @@ namespace WorkAppReactAPI.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Birthday")
                         .HasColumnType("datetime2");
@@ -235,6 +243,12 @@ namespace WorkAppReactAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("CMND")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrlOfCMND")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -266,11 +280,11 @@ namespace WorkAppReactAPI.Migrations
                     b.Property<Guid?>("WorkerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("isApproval")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("isApproval")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("isOnline")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("isOnline")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

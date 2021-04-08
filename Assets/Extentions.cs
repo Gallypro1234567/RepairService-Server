@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using WorkAppReactAPI.Configguration; 
+using WorkAppReactAPI.Configuration;
 
 
 namespace WorkAppReactAPI.Assets
@@ -40,8 +41,10 @@ namespace WorkAppReactAPI.Assets
                             adapter.SelectCommand = cmd;
                             adapter.Fill(dataTable);
                             transaction.Commit();
+                            result.Status = true;
+                            result.Type = "Success";
                             result.dataTable = dataTable;
-                             
+
                         }
 
                     }
@@ -49,7 +52,9 @@ namespace WorkAppReactAPI.Assets
                 }
                 catch (Exception Ex)
                 {
-                    result.dataTable = dataTable; 
+                    result.Status = false;
+                    result.Type = "Error";
+                    result.dataTable = dataTable;
                     result.Message = Ex.Message;
                     transaction.Rollback();
                     return result;
@@ -75,10 +80,41 @@ namespace WorkAppReactAPI.Assets
                 }
                 listobj.Add(row);
             }
-            result.data = listobj;
-            result.totalrow = total;
-            result.message = rs.Message; 
-            return result;
+
+            result.Data = listobj;
+            result.Totalrow = total;
+            result.Message = rs.Message;
+            result.Status = rs.Status;
+            result.Type = rs.Type;
+
+            return result; 
         }
+         public static Task<DynamicResult> JsonDataAsync(this SqlResult rs)
+        {
+
+            var result = new DynamicResult();
+            List<Dictionary<string, object>> listobj = new List<Dictionary<string, object>>();
+            Dictionary<string, object> row;
+            var total = 0;
+
+            foreach (DataRow dr in rs.dataTable.Rows)
+            {
+                row = new Dictionary<string, object>();
+                foreach (DataColumn col in rs.dataTable.Columns)
+                {
+                    row.Add(col.ColumnName, dr[col]);
+                }
+                listobj.Add(row);
+            }
+
+            result.Data = listobj;
+            result.Totalrow = total;
+            result.Message = rs.Message;
+            result.Status = rs.Status;
+            result.Type = rs.Type;
+
+            return Task.Run(() => { return result; });
+        }
+      
     }
 }

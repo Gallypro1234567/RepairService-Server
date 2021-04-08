@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WorkAppReactAPI.Dtos.Requests
 {
-    public class UserLoginRequest
+    public class UserLogin
     {
         [Required]
         [Phone]
@@ -10,5 +10,8 @@ namespace WorkAppReactAPI.Dtos.Requests
 
         [Required]
         public string Password { get; set; }
+
+        [Required]
+        public bool isCustomer { get; set; }
     }
 }

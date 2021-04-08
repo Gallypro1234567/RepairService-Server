@@ -1,22 +1,23 @@
-using System.Collections.Generic;
+
 using System.ComponentModel.DataAnnotations;
 
 namespace WorkAppReactAPI.Dtos.Requests
 {
-    public class UserRegistrationDto
+    public class UserRegister
     {
+     
         [Required]
         [Phone]
         public string Phone { get; set; }
-        [Required]
-        [EmailAddress]
-        public string Email { set; get; } 
 
-        [Required] 
+        [Required]
         public string Password { set; get; }
-        
-        [Required] 
+
+        [Required]
         public string Fullname { set; get; }
+
+        [Required]
+        public bool isCustomer { set; get; }
 
     }
 }

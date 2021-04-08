@@ -1,4 +1,4 @@
-using WorkAppReactAPI.Configguration;
+using WorkAppReactAPI.Configuration;
 
 namespace WorkAppReactAPI.Models.Responses
 {

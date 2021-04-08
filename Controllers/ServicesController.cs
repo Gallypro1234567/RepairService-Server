@@ -1,8 +1,11 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WorkAppReactAPI.Configguration;
+using WorkAppReactAPI.Configuration;
 using WorkAppReactAPI.Data.Interface;
+using WorkAppReactAPI.Dtos.Requests;
+using WorkAppReactAPI.Models;
 
 namespace WorkAppReactAPI.Controllers
 {
@@ -21,11 +24,41 @@ namespace WorkAppReactAPI.Controllers
 
         }
 
-        [HttpGet] 
-        public ActionResult<DynamicResult> getAllService()
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<DynamicResult>> getAllService()
         {
 
-            var list = _repository.getListService();
+            var list = await _repository.getListService();
+            return list;
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("add")]
+        public async Task<ActionResult<DynamicResult>> addService([FromBody] ServicePost model)
+        {
+
+            var list = await _repository.AddService(model);
+            return list;
+        }
+        [Authorize]
+        [HttpPost]
+        [Route("update")]
+        public async Task<ActionResult<DynamicResult>> updateService([FromBody] ServicePost model)
+        {
+
+            var list = await _repository.UpdateService(model);
+            return list;
+        }
+        [Authorize]
+        [HttpPost]
+        [Route("delete")]
+        public async Task<ActionResult<DynamicResult>> deleteServiceById([FromBody] ServicePost model)
+        {
+
+            var list = await _repository.DeleteService(model);
             return list;
         }
     }

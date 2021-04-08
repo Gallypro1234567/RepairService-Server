@@ -1,4 +1,4 @@
-namespace WorkAppReactAPI.Data
+namespace WorkAppReactAPI.Configuration
 {
     public class JwtConfig
     {
