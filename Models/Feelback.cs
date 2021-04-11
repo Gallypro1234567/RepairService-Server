@@ -13,7 +13,8 @@ namespace WorkAppReactAPI.Models
 
         [Required] 
         public string Code { set; get; }
-     
+
+        public virtual ICollection<WorkerOfService> WorkerOfServices {set;get;}
 
     }
 }

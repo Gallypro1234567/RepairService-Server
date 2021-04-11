@@ -63,6 +63,61 @@ namespace WorkAppReactAPI.Assets
             }
 
         }
+        // public static SqlResult ExecuteStoreUpdateMutilple(this DbContext context, string[] listcommandText, List<DbParameter[]> parameters)
+        // {
+        //     var result = new SqlResult();
+        //     var dataTable = new DataTable();
+        //     DbConnection connection = context.Database.GetDbConnection();
+        //     connection.Open();
+        //     using (var transaction = connection.BeginTransaction())
+        //     {
+        //         DbProviderFactory dbFactory = DbProviderFactories.GetFactory(transaction.Connection);
+        //         try
+        //         {
+        //             using (var cmd = dbFactory.CreateCommand())
+        //             {
+        //                 foreach (var commandText in listcommandText)
+        //                 {
+        //                     cmd.Connection = transaction.Connection;
+        //                     cmd.CommandType = CommandType.StoredProcedure;
+        //                     cmd.CommandText = commandText;
+        //                     cmd.Transaction = transaction;
+        //                     if (parameters != null)
+        //                     {
+        //                         foreach (var item in parameters)
+        //                         {
+        //                             cmd.Parameters.Add(item);
+        //                         }
+        //                     }
+        //                     using (DbDataAdapter adapter = dbFactory.CreateDataAdapter())
+        //                     {
+        //                         adapter.SelectCommand = cmd;
+        //                         adapter.Fill(dataTable);
+                                
+        //                         result.Status = true;
+        //                         result.Type = "Success";
+        //                         result.dataTable = dataTable;
+
+        //                     }
+        //                 }
+        //                 transaction.Commit();  
+        //             }
+        //             return result;
+        //         }
+        //         catch (Exception Ex)
+        //         {
+        //             result.Status = false;
+        //             result.Type = "Error";
+        //             result.dataTable = dataTable;
+        //             result.Message = Ex.Message;
+        //             transaction.Rollback();
+        //             return result;
+        //         }
+        //         finally { if (connection.State == ConnectionState.Open) connection.Close(); };
+        //     }
+
+        // }
+
         public static DynamicResult JsonData(this SqlResult rs)
         {
 
@@ -87,9 +142,9 @@ namespace WorkAppReactAPI.Assets
             result.Status = rs.Status;
             result.Type = rs.Type;
 
-            return result; 
+            return result;
         }
-         public static Task<DynamicResult> JsonDataAsync(this SqlResult rs)
+        public static Task<DynamicResult> JsonDataAsync(this SqlResult rs)
         {
 
             var result = new DynamicResult();
@@ -115,6 +170,6 @@ namespace WorkAppReactAPI.Assets
 
             return Task.Run(() => { return result; });
         }
-      
+
     }
 }

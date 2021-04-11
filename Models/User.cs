@@ -9,8 +9,8 @@ namespace WorkAppReactAPI.Models
     {
 
         [Key]
-        public Guid Id { set; get; }  
-        
+        public Guid Id { set; get; }
+
         [Required]
         [MaxLength(250)]
         public string Phone { set; get; }
@@ -29,6 +29,6 @@ namespace WorkAppReactAPI.Models
         public bool isOnline { get; set; }
         public virtual ICollection<Customer> Customers { get; set; }
         public virtual ICollection<Worker> Workers { get; set; }
-
+        public virtual ICollection<UserRole> UserRoles { set; get; }
     }
 }

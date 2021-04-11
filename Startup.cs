@@ -33,7 +33,7 @@ namespace WorkAppReactAPI
         {
             services.Configure<JwtConfig>(Configuration.GetSection("JwtConfig"));
             services.AddDbContext<WorkerServiceContext>(opt => opt.UseSqlServer
-                (Configuration.GetConnectionString("WorkerServiceConnectionFTP")));
+                (Configuration.GetConnectionString("WorkerServiceConnection")));
 
             services.AddAuthentication(option =>
             {
@@ -58,12 +58,15 @@ namespace WorkAppReactAPI
             // services.AddTransient<IAuthorizationPolicyProvider, MyAuthorizationPolicy>();
             // services.AddSingleton<IAuthorizationHandler, MyAuthorizationHandler>();
 
+            services.AddHttpContextAccessor();
             // Add DI
+            services.AddScoped<IUserRepo, UserRepo>();
+            services.AddScoped<IAuthorRepo, AuthorRepo>();
             services.AddScoped<IServiceRepo, ServiceRepo>();
             services.AddScoped<ICustomerRepo, CustomerRepo>();
-            services.AddScoped<IUserRepo, UserRepo>();
+            services.AddScoped<IPreferentialRepo, PreferentialRepo>();
 
-            services.AddHttpContextAccessor();
+
 
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>

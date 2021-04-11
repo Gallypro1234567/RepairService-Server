@@ -10,10 +10,10 @@ namespace WorkAppReactAPI.Data.Interface
     {
         Task<DynamicResult> getListService();
 
-        Task<DynamicResult> AddService(ServicePost model);
+        Task<DynamicResult> AddService(ServiceUpdate model);
 
-        Task<DynamicResult> UpdateService(ServicePost model);
+        Task<DynamicResult> UpdateService(ServiceUpdate model);
 
-        Task<DynamicResult> DeleteService(ServicePost model);
+        Task<DynamicResult> DeleteService(ServiceDrop model);
     }
 }

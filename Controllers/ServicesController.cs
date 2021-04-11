@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -37,16 +38,16 @@ namespace WorkAppReactAPI.Controllers
         [Authorize]
         [HttpPost]
         [Route("add")]
-        public async Task<ActionResult<DynamicResult>> addService([FromBody] ServicePost model)
+        public async Task<ActionResult<DynamicResult>> addService([FromBody] ServiceUpdate model)
         {
-
+         
             var list = await _repository.AddService(model);
             return list;
         }
         [Authorize]
         [HttpPost]
         [Route("update")]
-        public async Task<ActionResult<DynamicResult>> updateService([FromBody] ServicePost model)
+        public async Task<ActionResult<DynamicResult>> updateService([FromBody] ServiceUpdate model)
         {
 
             var list = await _repository.UpdateService(model);
@@ -55,7 +56,7 @@ namespace WorkAppReactAPI.Controllers
         [Authorize]
         [HttpPost]
         [Route("delete")]
-        public async Task<ActionResult<DynamicResult>> deleteServiceById([FromBody] ServicePost model)
+        public async Task<ActionResult<DynamicResult>> deleteServiceById([FromBody] ServiceDrop model)
         {
 
             var list = await _repository.DeleteService(model);

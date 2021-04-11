@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkAppReactAPI.Data;
 
 namespace WorkAppReactAPI.Migrations
 {
     [DbContext(typeof(WorkerServiceContext))]
-    partial class WorkerServiceContextModelSnapshot : ModelSnapshot
+    [Migration("20210411034018_Initial1")]
+    partial class Initial1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -127,21 +129,12 @@ namespace WorkAppReactAPI.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("FromDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Percents")
-                        .HasColumnType("float");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ToDate")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -154,11 +147,20 @@ namespace WorkAppReactAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("FromDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("Percents")
+                        .HasColumnType("float");
+
                     b.Property<Guid>("PreferentialId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ServiceId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ToDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

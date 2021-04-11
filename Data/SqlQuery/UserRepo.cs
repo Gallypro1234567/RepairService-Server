@@ -18,11 +18,11 @@ namespace WorkAppReactAPI.Data.SqlQuery
 
 
         private readonly WorkerServiceContext _context;
-
-        public UserRepo(WorkerServiceContext context)
+        private readonly IAuthorRepo _author;
+        public UserRepo(WorkerServiceContext context,  IAuthorRepo author)
         {
             _context = context;
-
+            _author = author;
         }
 
         public Task<DynamicResult> Login(UserLogin model)
@@ -38,6 +38,13 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 return new DynamicResult() { Message = "Tài khoản này đã tồn tại", Data = null, Totalrow = 0, Type = "Error", Status = false };
 
             }
+
+            Guid? key;
+            do
+            {
+              key = Guid.NewGuid();
+            } while (_context.Users.FirstOrDefault(x => x.Id == key) != null);
+
             SqlParameter[] parameters ={
                 new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = Guid.NewGuid()},
                 new SqlParameter("@Phone", SqlDbType.VarChar) { Value = model.Phone},
@@ -60,7 +67,6 @@ namespace WorkAppReactAPI.Data.SqlQuery
         public async Task<DynamicResult> ChangePassword(UserChangePassword model, UserLogin auth)
         {
             var result = new DynamicResult();
-
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Phone == auth.Phone && x.Password == Encryptor.Encrypt(auth.Password));
             if (user == null)
             {

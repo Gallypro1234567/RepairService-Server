@@ -8,13 +8,7 @@ namespace WorkAppReactAPI.Models
     {
 
         [Key]
-        public Guid Id { get; set; }
-        [Required]
-        public double Percent { set; get; }
-        [Required]
-        public DateTime FromDate { set; get; }
-        [Required]
-        public DateTime ToDate { set; get; } 
+        public Guid Id { get; set; } 
 
         [Required]
         public virtual Service Service { set; get; }

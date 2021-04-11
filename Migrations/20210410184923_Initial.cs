@@ -25,11 +25,26 @@ namespace WorkAppReactAPI.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Preferentials", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Roles",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -115,6 +130,32 @@ namespace WorkAppReactAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserRoles",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRoles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserRoles_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_UserRoles_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Workers",
                 columns: table => new
                 {
@@ -165,14 +206,14 @@ namespace WorkAppReactAPI.Migrations
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ServiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     WorkerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    FeelbackId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    FeelbacksId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WorkerOfServices", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WorkerOfServices_Feelbacks_FeelbackId",
-                        column: x => x.FeelbackId,
+                        name: "FK_WorkerOfServices_Feelbacks_FeelbacksId",
+                        column: x => x.FeelbacksId,
                         principalTable: "Feelbacks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -252,9 +293,19 @@ namespace WorkAppReactAPI.Migrations
                 column: "ServiceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkerOfServices_FeelbackId",
+                name: "IX_UserRoles_RoleId",
+                table: "UserRoles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoles_UserId",
+                table: "UserRoles",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkerOfServices_FeelbacksId",
                 table: "WorkerOfServices",
-                column: "FeelbackId");
+                column: "FeelbacksId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkerOfServices_ServiceId",
@@ -284,6 +335,9 @@ namespace WorkAppReactAPI.Migrations
                 name: "PreferentialOfServices");
 
             migrationBuilder.DropTable(
+                name: "UserRoles");
+
+            migrationBuilder.DropTable(
                 name: "WorkerOfServices");
 
             migrationBuilder.DropTable(
@@ -291,6 +345,9 @@ namespace WorkAppReactAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Preferentials");
+
+            migrationBuilder.DropTable(
+                name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "Feelbacks");
