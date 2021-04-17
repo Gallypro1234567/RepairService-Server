@@ -10,7 +10,7 @@ using WorkAppReactAPI.Data;
 namespace WorkAppReactAPI.Migrations
 {
     [DbContext(typeof(WorkerServiceContext))]
-    [Migration("20210411120355_Initial")]
+    [Migration("20210417130911_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
