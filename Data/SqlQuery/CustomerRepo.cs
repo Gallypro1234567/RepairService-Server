@@ -37,7 +37,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var user =await _context.Users.FirstOrDefaultAsync(x => x.Phone == model.Phone);
             if (user != null)
             {
-                return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = false };
+                return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
             }
             SqlParameter[] parameters ={
@@ -57,7 +57,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var user =await _context.Users.FirstOrDefaultAsync(x => x.Phone == model.Phone);
             if (user == null)
             {
-                return new DynamicResult() { Message = "Account not found", Type = "Error", Status = false, Data = null, Totalrow = 0 };
+                return new DynamicResult() { Message = "Account not found", Type = "Error", Status = 2, Data = null, Totalrow = 0 };
 
             }
             SqlParameter[] parameters ={
@@ -77,7 +77,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var user =await _context.Users.FirstOrDefaultAsync(x => x.Phone == model.Phone);
             if (user == null)
             {
-                return new DynamicResult() { Message = "Account not found", Type = "Error", Status = false, Data = null, Totalrow = 0 };
+                return new DynamicResult() { Message = "Account not found", Type = "Error", Status = 2, Data = null, Totalrow = 0 };
 
             }
             SqlParameter[] parameters ={

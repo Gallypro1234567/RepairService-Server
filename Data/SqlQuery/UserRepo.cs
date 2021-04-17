@@ -35,7 +35,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var user = _context.Users.FirstOrDefault(x => x.Phone == model.Phone);
             if (user != null)
             {
-                return new DynamicResult() { Message = "Tài khoản này đã tồn tại", Data = null, Totalrow = 0, Type = "Error", Status = false };
+                return new DynamicResult() { Message = "Tài khoản này đã tồn tại", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
             }
 
@@ -71,13 +71,13 @@ namespace WorkAppReactAPI.Data.SqlQuery
             if (user == null)
             {
 
-                return new DynamicResult() { Message = "Lỗi xác thực", Data = null, Totalrow = 0, Type = "Error-Validation", Status = false };
+                return new DynamicResult() { Message = "Lỗi xác thực", Data = null, Totalrow = 0, Type = "Error-Validation", Status = 2 };
 
             }
             var DecryptPass = Encryptor.Decrypt(user.Password);
             if ( DecryptPass != model.OldPassword)
             {
-                return new DynamicResult() { Message = "Sai mật khẩu", Data = null, Totalrow = 0, Type = "Error", Status = false };
+                return new DynamicResult() { Message = "Sai mật khẩu", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
             }
             var newpassword = Encryptor.Encrypt(model.NewPassword);
@@ -97,7 +97,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             if (user == null)
             {
 
-                return new DynamicResult() { Message = "Lỗi xác thực", Data = null, Totalrow = 0, Type = "Error-Validation", Status = false };
+                return new DynamicResult() { Message = "Lỗi xác thực", Data = null, Totalrow = 0, Type = "Error-Validation", Status = 2 };
 
             }
 
@@ -106,7 +106,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             {
                 SqlParameter[] parameters1 = {
                     new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = user.Id },
-                    new SqlParameter("@Phone", SqlDbType.VarChar) { Value = model.Phone},
+                    new SqlParameter("@Phone", SqlDbType.VarChar) { Value = user.Phone},
                     new SqlParameter("@FullName", SqlDbType.NVarChar) { Value = model.Fullname},
                     new SqlParameter("@Birthday", SqlDbType.DateTime) { Value = model.Birthday},
                     new SqlParameter("@Email", SqlDbType.VarChar) { Value = model.Email},

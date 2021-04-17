@@ -27,7 +27,10 @@ namespace WorkAppReactAPI.Migrations
                     Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Percents = table.Column<double>(type: "float", nullable: false),
+                    FromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ToDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -39,8 +42,14 @@ namespace WorkAppReactAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false)
+                    FunctionCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    isSearch = table.Column<bool>(type: "bit", nullable: false),
+                    isInsert = table.Column<bool>(type: "bit", nullable: false),
+                    isUpdate = table.Column<bool>(type: "bit", nullable: false),
+                    isDelete = table.Column<bool>(type: "bit", nullable: false),
+                    isExport = table.Column<bool>(type: "bit", nullable: false),
+                    isImport = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -88,9 +97,6 @@ namespace WorkAppReactAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Percent = table.Column<double>(type: "float", nullable: false),
-                    FromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ToDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ServiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PreferentialId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -206,14 +212,14 @@ namespace WorkAppReactAPI.Migrations
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ServiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     WorkerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    FeelbacksId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    FeelbackId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WorkerOfServices", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WorkerOfServices_Feelbacks_FeelbacksId",
-                        column: x => x.FeelbacksId,
+                        name: "FK_WorkerOfServices_Feelbacks_FeelbackId",
+                        column: x => x.FeelbackId,
                         principalTable: "Feelbacks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -303,9 +309,9 @@ namespace WorkAppReactAPI.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkerOfServices_FeelbacksId",
+                name: "IX_WorkerOfServices_FeelbackId",
                 table: "WorkerOfServices",
-                column: "FeelbacksId");
+                column: "FeelbackId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkerOfServices_ServiceId",

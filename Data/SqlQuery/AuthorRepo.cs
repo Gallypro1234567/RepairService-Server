@@ -38,13 +38,13 @@ namespace WorkAppReactAPI.Data.SqlQuery
             if (user == null)
             {
 
-                return new DynamicResult() { Message = "Authorized Error", Data = null, Totalrow = 0, Type = "Error", Status = false };
+                return new DynamicResult() { Message = "Authorized Error", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
             }
             var check = user.UserRoles.FirstOrDefault(x => x.Role.FunctionCode == functionCode);
             if (check == null)
             {
-                return new DynamicResult() { Message = "Authorized is Denied", Data = null, Totalrow = 0, Type = "Error", Status = false };
+                return new DynamicResult() { Message = "Authorized is Denied", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
             }
             switch (typeFuntion)
             {
@@ -61,7 +61,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                             {
                                 Message = "Authorized is Denied",
                                 Type = "Error",
-                                Status = false
+                                Status = 2
                             };
                         }
                     }
@@ -78,7 +78,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                             {
                                 Message = "Authorized is Denied",
                                 Type = "Error",
-                                Status = false
+                                Status = 2
                             };
                         }
                     }
@@ -95,7 +95,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                             {
                                 Message = "Authorized is Denied",
                                 Type = "Error",
-                                Status = false
+                                Status = 2
                             };
                         }
                     }
@@ -112,7 +112,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                             {
                                 Message = "Authorized is Denied",
                                 Type = "Error",
-                                Status = false
+                                Status = 2
                             };
                         }
                     }
@@ -129,7 +129,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                             {
                                 Message = "Authorized is Denied",
                                 Type = "Error",
-                                Status = false
+                                Status = 2
                             };
                         }
                     }
@@ -146,7 +146,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                             {
                                 Message = "Authorized is Denied",
                                 Type = "Error",
-                                Status = false
+                                Status = 2
                             };
                         }
                     }
@@ -156,7 +156,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                         {
                             Message = "Authorized is Denied",
                             Type = "Error",
-                            Status = false
+                            Status = 2
                         };
                     }
             }

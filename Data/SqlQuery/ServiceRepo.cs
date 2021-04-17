@@ -31,7 +31,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var service = await  _context.Services.FirstOrDefaultAsync(x => x.Name == model.Name.Trim());
             if (service != null)
             {
-                var failure = new DynamicResult() { Message = "Name of service is exists", Type = "Error", Status = false, Totalrow = 0 };
+                var failure = new DynamicResult() { Message = "Name of service is exists", Type = "Error", Status = 2, Totalrow = 0 };
                 return failure;
             }
 
@@ -69,7 +69,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var service = _context.Services.FirstOrDefault(x => x.Code == model.Code);
             if (service == null)
             {
-                var failure = new DynamicResult() { Message = "Not found service", Type = "Error", Status = false, Totalrow = 0 };
+                var failure = new DynamicResult() { Message = "Not found service", Type = "Error", Status = 2, Totalrow = 0 };
                 return failure;
             }
             SqlParameter[] parameters ={
@@ -85,7 +85,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var service = _context.Services.FirstOrDefault(x => x.Code == model.Code);
             if (service == null)
             {
-                var failure = new DynamicResult() { Message = "Not found service", Type = "Error", Status = false, Totalrow = 0 };
+                var failure = new DynamicResult() { Message = "Not found service", Type = "Error", Status = 2, Totalrow = 0 };
                 return failure;
             }
             SqlParameter[] parameters ={

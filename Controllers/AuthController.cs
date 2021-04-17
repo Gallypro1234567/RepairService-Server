@@ -1,18 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using WorkAppReactAPI.Asset;
+using WorkAppReactAPI.Assets;
 using WorkAppReactAPI.Configuration;
 using WorkAppReactAPI.Data;
 using WorkAppReactAPI.Data.Interface;
@@ -26,6 +29,7 @@ namespace WorkAppReactAPI.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -34,8 +38,9 @@ namespace WorkAppReactAPI.Controllers
         private readonly IUserRepo _users;
 
         private readonly JwtConfig _jwtConfig;
-        public AuthController(WorkerServiceContext context, IUserRepo users, IOptionsMonitor<JwtConfig> optionsMonitor, IHttpContextAccessor httpContextAccessor)
+        public AuthController(IWebHostEnvironment hostingEnvironment, WorkerServiceContext context, IUserRepo users, IOptionsMonitor<JwtConfig> optionsMonitor, IHttpContextAccessor httpContextAccessor)
         {
+            _hostingEnvironment = hostingEnvironment;
             _context = context;
             _users = users;
             _jwtConfig = optionsMonitor.CurrentValue;
@@ -61,11 +66,11 @@ namespace WorkAppReactAPI.Controllers
                     });
                 }
                 var key = Encryptor.Encrypt(model.Password);
-               
+
                 var newuser = new UserRegister { Phone = model.Phone, Password = key, Fullname = model.Fullname, isCustomer = model.isCustomer };
                 var sqlresult = await _users.Register(newuser);
 
-                if (sqlresult.Status)
+                if (sqlresult.Status == 1)
                 {
                     var jwttoken = GenerateJwtToken(new UserLogin() { Phone = model.Phone, Password = model.Password });
                     return Ok(new RegistrationResponse
@@ -150,8 +155,9 @@ namespace WorkAppReactAPI.Controllers
                 var tokenStr = auth.Substring("Bearer ".Length).Trim();
                 var jsonToken = handler.ReadToken(tokenStr);
                 var tokenS = jsonToken as JwtSecurityToken;
-               
-                var tokenModel = new UserLogin(){
+
+                var tokenModel = new UserLogin()
+                {
                     Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
                     Password = tokenS.Claims.First(claim => claim.Type == "Password").Value
                 };
@@ -167,6 +173,58 @@ namespace WorkAppReactAPI.Controllers
             });
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost]
+        [Route("update")]
+        public async Task<IActionResult> Update([FromForm] UserUpdate user, [FromHeader] HeaderParamaters paramaters)
+        {
+            if (ModelState.IsValid)
+            {
+                var httpcontext = _httpContextAccessor.HttpContext.Request;
+                var auth = httpcontext.Headers["Authorization"].ToString();
+                var handler = new JwtSecurityTokenHandler();
+                var tokenStr = auth.Substring("Bearer ".Length).Trim();
+                var jsonToken = handler.ReadToken(tokenStr);
+                var tokenS = jsonToken as JwtSecurityToken;
+
+                var tokenModel = new UserLogin()
+                {
+                    Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                    Password = tokenS.Claims.First(claim => claim.Type == "Password").Value
+                };
+
+
+                var file = user.File;
+
+                if (file.Length > 0)
+                {
+                    var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
+                    if (path.Length == 0)
+                    {
+                        return BadRequest(new DynamicResult()
+                        {
+                            Message = "File không hợp lệ",
+                            Status = 1
+                        });
+                    }
+                    user.ImageUrl = path;
+                }
+
+                var result = await _users.UpdateInformation(user, tokenModel);
+                if (result.Status != 1)
+                {   
+                    System.IO.File.Delete(user.ImageUrl);
+                }
+                return Ok(result);
+            }
+            return BadRequest(new RegistrationResponse
+            {
+                Errors = new List<string>(){
+                            "Invalid payload"
+                        },
+                Success = false
+            });
+        }
         private string GenerateJwtToken(UserLogin user)
         {
             var jwtTokenhandler = new JwtSecurityTokenHandler();

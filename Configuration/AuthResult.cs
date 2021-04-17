@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WorkAppReactAPI.Configuration
@@ -17,4 +18,13 @@ namespace WorkAppReactAPI.Configuration
         public string Message { set; get; }
         public List<Dictionary<string, object>> Data { set; get; }
     }
+
+     public class HeaderParamaters
+    {
+
+        [FromHeader]
+        [Required]
+        public string Authorization { get; set; }
+    }
+ 
 }

@@ -10,7 +10,7 @@ using WorkAppReactAPI.Data;
 namespace WorkAppReactAPI.Migrations
 {
     [DbContext(typeof(WorkerServiceContext))]
-    [Migration("20210410184923_Initial")]
+    [Migration("20210411120355_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -129,12 +129,21 @@ namespace WorkAppReactAPI.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("FromDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Percents")
+                        .HasColumnType("float");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ToDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -147,20 +156,11 @@ namespace WorkAppReactAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("FromDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double>("Percent")
-                        .HasColumnType("float");
-
                     b.Property<Guid>("PreferentialId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ServiceId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("ToDate")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -177,7 +177,7 @@ namespace WorkAppReactAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Code")
+                    b.Property<string>("FunctionCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -185,6 +185,24 @@ namespace WorkAppReactAPI.Migrations
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
+
+                    b.Property<bool>("isDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isExport")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isImport")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isInsert")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isSearch")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isUpdate")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -318,7 +336,7 @@ namespace WorkAppReactAPI.Migrations
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("FeelbacksId")
+                    b.Property<Guid?>("FeelbackId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Position")
@@ -338,7 +356,7 @@ namespace WorkAppReactAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FeelbacksId");
+                    b.HasIndex("FeelbackId");
 
                     b.HasIndex("ServiceId");
 
@@ -429,9 +447,9 @@ namespace WorkAppReactAPI.Migrations
 
             modelBuilder.Entity("WorkAppReactAPI.Models.WorkerOfService", b =>
                 {
-                    b.HasOne("WorkAppReactAPI.Models.Feelback", "Feelbacks")
+                    b.HasOne("WorkAppReactAPI.Models.Feelback", "Feelback")
                         .WithMany("WorkerOfServices")
-                        .HasForeignKey("FeelbacksId");
+                        .HasForeignKey("FeelbackId");
 
                     b.HasOne("WorkAppReactAPI.Models.Service", "Service")
                         .WithMany("WorkerOfServices")
@@ -441,7 +459,7 @@ namespace WorkAppReactAPI.Migrations
                         .WithMany("WorkerOfCategories")
                         .HasForeignKey("WorkerId");
 
-                    b.Navigation("Feelbacks");
+                    b.Navigation("Feelback");
 
                     b.Navigation("Service");
 

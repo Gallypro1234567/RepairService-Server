@@ -28,7 +28,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
 
             if (preferentials != null)
             {
-                var failure = new DynamicResult() { Message = "Name of preferential is exists", Type = "Error", Status = false, Totalrow = 0 };
+                var failure = new DynamicResult() { Message = "Name of preferential is exists", Type = "Error", Status = 2, Totalrow = 0 };
                 return failure;
             }
             foreach (var item in prfs)
@@ -37,7 +37,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 var service = await _context.Services.FirstOrDefaultAsync(x => x.Code == item);
                 if (service == null)
                 {
-                    var failure = new DynamicResult() { Message = "Code of service is not found", Type = "Error", Status = false, Totalrow = 0 };
+                    var failure = new DynamicResult() { Message = "Code of service is not found", Type = "Error", Status = 2, Totalrow = 0 };
                     return failure;
                 }
             }
@@ -84,17 +84,20 @@ namespace WorkAppReactAPI.Data.SqlQuery
                             new SqlParameter("@ServiceId", SqlDbType.UniqueIdentifier) { Value = service.Id},
                         };
                 result2 = await _context.ExecuteDataTable("[dbo].[sp_InsertPreferentialService]", parameterss).JsonDataAsync();
-            } 
-            if(!result1.Status){
+            }
+            if (result1.Status == 2)
+            {
                 return result1;
             }
-             if(!result2.Status){
+            if (result2.Status == 2)
+            {
                 return result2;
             }
-            return new DynamicResult(){
-                Message= "Insert is Successed",
-                Status = true,
-                Type ="Success"
+            return new DynamicResult()
+            {
+                Message = "Insert is Successed",
+                Status = 2,
+                Type = "Success"
             };
 
         }
@@ -104,7 +107,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var preferential = await _context.Preferentials.FirstOrDefaultAsync(x => x.Code == model.Code);
             if (preferential == null)
             {
-                var failure = new DynamicResult() { Message = "Not found preferential", Type = "Error", Status = false, Totalrow = 0 };
+                var failure = new DynamicResult() { Message = "Not found preferential", Type = "Error", Status = 2, Totalrow = 0 };
                 return failure;
             }
             SqlParameter[] parameters ={

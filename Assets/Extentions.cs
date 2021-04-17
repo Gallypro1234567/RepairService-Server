@@ -41,7 +41,7 @@ namespace WorkAppReactAPI.Assets
                             adapter.SelectCommand = cmd;
                             adapter.Fill(dataTable);
                             transaction.Commit();
-                            result.Status = true;
+                            result.Status = 1;
                             result.Type = "Success";
                             result.dataTable = dataTable;
 
@@ -52,7 +52,7 @@ namespace WorkAppReactAPI.Assets
                 }
                 catch (Exception Ex)
                 {
-                    result.Status = false;
+                    result.Status = 2;
                     result.Type = "Error";
                     result.dataTable = dataTable;
                     result.Message = Ex.Message;

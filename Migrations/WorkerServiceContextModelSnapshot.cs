@@ -334,7 +334,7 @@ namespace WorkAppReactAPI.Migrations
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("FeelbacksId")
+                    b.Property<Guid?>("FeelbackId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Position")
@@ -354,7 +354,7 @@ namespace WorkAppReactAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FeelbacksId");
+                    b.HasIndex("FeelbackId");
 
                     b.HasIndex("ServiceId");
 
@@ -445,9 +445,9 @@ namespace WorkAppReactAPI.Migrations
 
             modelBuilder.Entity("WorkAppReactAPI.Models.WorkerOfService", b =>
                 {
-                    b.HasOne("WorkAppReactAPI.Models.Feelback", "Feelbacks")
+                    b.HasOne("WorkAppReactAPI.Models.Feelback", "Feelback")
                         .WithMany("WorkerOfServices")
-                        .HasForeignKey("FeelbacksId");
+                        .HasForeignKey("FeelbackId");
 
                     b.HasOne("WorkAppReactAPI.Models.Service", "Service")
                         .WithMany("WorkerOfServices")
@@ -457,7 +457,7 @@ namespace WorkAppReactAPI.Migrations
                         .WithMany("WorkerOfCategories")
                         .HasForeignKey("WorkerId");
 
-                    b.Navigation("Feelbacks");
+                    b.Navigation("Feelback");
 
                     b.Navigation("Service");
 
