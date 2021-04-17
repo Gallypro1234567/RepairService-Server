@@ -191,9 +191,7 @@ namespace WorkAppReactAPI.Controllers
                 {
                     Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
                     Password = tokenS.Claims.First(claim => claim.Type == "Password").Value
-                };
-
-
+                }; 
                 var file = user.File;
 
                 if (file.Length > 0)

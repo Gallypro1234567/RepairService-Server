@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace WorkAppReactAPI.Dtos.Requests
 {
@@ -8,17 +9,18 @@ namespace WorkAppReactAPI.Dtos.Requests
     {
 
         public Guid Id { set; get; }
-        
+
         public string Code { set; get; }
         [Required]
         public string Title { set; get; }
         public string Description { get; set; }
+        public IFormFile Image { get; set; }
         public string ImageUrl { get; set; }
         public double Percents { set; get; }
         [Required]
         public DateTime FromDate { set; get; }
         [Required]
-        public DateTime ToDate { set; get; } 
+        public DateTime ToDate { set; get; }
         public string ListService { get; set; }
     }
 
