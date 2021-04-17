@@ -14,17 +14,18 @@ namespace WorkAppReactAPI.Assets
             {
                 return null;
             }
-            var fileName = Guid.NewGuid() + ext;
+            var fileName = Guid.NewGuid() + ext; 
             var filepath = _hostingEnvironment.WebRootPath + path + fileName;
-            if (!Directory.Exists(_hostingEnvironment.WebRootPath + path))
+            if (!Directory.Exists(_hostingEnvironment.WebRootPath + filepath))
             {
-                Directory.CreateDirectory(_hostingEnvironment.WebRootPath + path);
+                Directory.CreateDirectory(_hostingEnvironment.WebRootPath + filepath);
             }
             using (FileStream filetream = System.IO.File.Create(filepath))
             {
                 file.CopyTo(filetream);
                 filetream.Flush();
-                return filepath.Replace(@"\", "/"); ;
+                var result= path + fileName;
+                return result.Replace(@"\", "/"); ;
             }
         }
     }

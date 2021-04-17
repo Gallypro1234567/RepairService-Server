@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WorkAppReactAPI.Models
 {
-    public class Booking
+    public class Post
     {
         [Key]
         public Guid Id { set; get; }

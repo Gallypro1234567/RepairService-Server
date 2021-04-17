@@ -12,7 +12,7 @@ namespace WorkAppReactAPI.Models
         public Guid Id { set; get; }
         public virtual User User {set;get;}
         public virtual ICollection<HistoryAdress> HistotyAddress { set; get; }
-        public virtual ICollection<Booking> Bookings { get; set; }
+        public virtual ICollection<Post> Bookings { get; set; }
 
     }
 }
