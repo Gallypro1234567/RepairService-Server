@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkAppReactAPI.Data;
 
 namespace WorkAppReactAPI.Migrations
 {
     [DbContext(typeof(WorkerServiceContext))]
-    partial class WorkerServiceContextModelSnapshot : ModelSnapshot
+    [Migration("20210418124317_add_column_post")]
+    partial class add_column_post
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,13 +101,13 @@ namespace WorkAppReactAPI.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Position")
+                    b.Property<string>("Positon")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("WorkerOfServiceId")
+                    b.Property<Guid>("WorkerOfServiceId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("status")
@@ -277,12 +279,6 @@ namespace WorkAppReactAPI.Migrations
                     b.Property<string>("RewardPoints")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
                     b.Property<bool>("isOnline")
                         .HasColumnType("bit");
 
@@ -343,9 +339,6 @@ namespace WorkAppReactAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Code")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
@@ -361,8 +354,8 @@ namespace WorkAppReactAPI.Migrations
                     b.Property<Guid?>("WorkerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("isApproval")
-                        .HasColumnType("int");
+                    b.Property<bool>("isApproval")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("isOnline")
                         .HasColumnType("bit");
@@ -406,7 +399,9 @@ namespace WorkAppReactAPI.Migrations
 
                     b.HasOne("WorkAppReactAPI.Models.WorkerOfService", "WorkerOfService")
                         .WithMany("Bookings")
-                        .HasForeignKey("WorkerOfServiceId");
+                        .HasForeignKey("WorkerOfServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Customer");
 

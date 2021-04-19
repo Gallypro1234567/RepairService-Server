@@ -18,23 +18,23 @@ namespace WorkAppReactAPI.Data.SqlQuery
         {
             _context = context;
         }
-        public async Task<DynamicResult> getAllCustomer()
+        public async Task<DynamicResult> getCustomer()
         {
             var result = await _context.ExecuteDataTable("[dbo].[sp_GetCustomers]", null).JsonDataAsync();
             return result;
         }
 
-        public async Task<DynamicResult> GetCustomerByCode(string phone)
+        public async Task<DynamicResult> GetCustomerByPhone(string phone)
         {
             SqlParameter[] parameters ={
-                new SqlParameter("@Phone", SqlDbType.UniqueIdentifier) { Value = phone.Trim()}  
+                new SqlParameter("@Phone", SqlDbType.UniqueIdentifier) { Value = phone.Trim()}
             };
-            var result =await _context.ExecuteDataTable("[dbo].[sp_GetCustomerByPhone]", parameters).JsonDataAsync();
+            var result = await _context.ExecuteDataTable("[dbo].[sp_GetCustomerByPhone]", parameters).JsonDataAsync();
             return result;
-        } 
+        }
         public async Task<DynamicResult> AddCustomer(UserUpdate model)
         {
-            var user =await _context.Users.FirstOrDefaultAsync(x => x.Phone == model.Phone);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Phone == model.Phone);
             if (user != null)
             {
                 return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
@@ -48,42 +48,61 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 new SqlParameter("@Birthday", SqlDbType.DateTime) { Value = model.Birthday},
                 new SqlParameter("@Address", SqlDbType.DateTime) { Value = model.Address},
             };
-            var result =await _context.ExecuteDataTable("[dbo].[sp_InsertCustomer]", parameters).JsonDataAsync();
+            var result = await _context.ExecuteDataTable("[dbo].[sp_InsertCustomer]", parameters).JsonDataAsync();
             return result;
         }
 
-        public async Task<DynamicResult> UpdateCustomer(UserUpdate model)
+        public async Task<DynamicResult> UpdateCustomer(string phone, UserUpdate model, UserLogin auth)
         {
-            var user =await _context.Users.FirstOrDefaultAsync(x => x.Phone == model.Phone);
+            var result = new DynamicResult();
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Phone == phone && x.Phone == model.Phone);
+            if (user == null)
+            {
+
+                return new DynamicResult() { Message = "Account not found", Data = null, Totalrow = 0, Type = "Error-Validation", Status = 2 };
+
+            }
+            if (user.Phone != auth.Phone && user.Password != Encryptor.Encrypt(auth.Password))
+            {
+                return new DynamicResult() { Message = "You can't modify  orther user's profile", Data = null, Totalrow = 0, Type = "Error-UnAuthorized", Status = 2 };
+            }
+
+            SqlParameter[] parameters1 = {
+                    new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = user.Id },
+                    new SqlParameter("@Phone", SqlDbType.VarChar) { Value = user.Phone},
+                    new SqlParameter("@FullName", SqlDbType.NVarChar) { Value = model.Fullname},
+                    new SqlParameter("@Birthday", SqlDbType.DateTime) { Value = model.Birthday},
+                    new SqlParameter("@Email", SqlDbType.VarChar) { Value = model.Email},
+                    new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl},
+                    new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address}
+                };
+            result = await _context.ExecuteDataTable("[dbo].[sp_UpdateCustomer]", parameters1).JsonDataAsync();
+            return result; 
+        }
+
+        public async Task<DynamicResult> DeleteCustomer(String phone, UserLogin auth)
+        {
+            var admin = await _context.Users.FirstOrDefaultAsync(x => x.Phone == auth.Phone && x.Password == Encryptor.Encrypt(auth.Password));
+            if (admin == null)
+            {
+                return new DynamicResult() { Message = "Account not found ", Type = "Error", Status = 2, Data = null, Totalrow = 0 };
+
+            }
+            if (admin.Role != 0)
+            {
+                return new DynamicResult() { Message = "You are't admin", Type = "Error", Status = 2, Data = null, Totalrow = 0 };
+
+            }
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Phone == phone);
             if (user == null)
             {
                 return new DynamicResult() { Message = "Account not found", Type = "Error", Status = 2, Data = null, Totalrow = 0 };
 
             }
             SqlParameter[] parameters ={
-                new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = user.Id},
-                new SqlParameter("@Phone", SqlDbType.VarChar) { Value = model.Phone},
-                new SqlParameter("@Email", SqlDbType.VarChar) { Value = model.Email},
-                new SqlParameter("@Fullname", SqlDbType.NVarChar) { Value = model.Fullname},
-                new SqlParameter("@Birthday", SqlDbType.DateTime) { Value = model.Birthday},
-                new SqlParameter("@Address", SqlDbType.DateTime) { Value = model.Address},
+                new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = user.Id}
             };
-            var result =await _context.ExecuteDataTable("[dbo].[sp_UpdateCustomer]", parameters).JsonDataAsync();
-            return result;
-        }
-
-        public async Task<DynamicResult> DeleteCustomerById(UserUpdate model)
-        {
-            var user =await _context.Users.FirstOrDefaultAsync(x => x.Phone == model.Phone);
-            if (user == null)
-            {
-                return new DynamicResult() { Message = "Account not found", Type = "Error", Status = 2, Data = null, Totalrow = 0 };
-
-            }
-            SqlParameter[] parameters ={
-                new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = user.Id} 
-            };
-            var result =await _context.ExecuteDataTable("[dbo].[sp_DeleteCustomer]", parameters).JsonDataAsync();
+            var result = await _context.ExecuteDataTable("[dbo].[sp_DeleteCustomer]", parameters).JsonDataAsync();
             return result;
         }
     }

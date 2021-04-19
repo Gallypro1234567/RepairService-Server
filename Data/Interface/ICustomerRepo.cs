@@ -7,11 +7,11 @@ namespace WorkAppReactAPI.Data.Interface
 {
     public interface ICustomerRepo
     {
-        Task<DynamicResult> getAllCustomer();
-        Task<DynamicResult> GetCustomerByCode(String phone);
+        Task<DynamicResult> getCustomer();
+        Task<DynamicResult> GetCustomerByPhone(String phone);
         Task<DynamicResult> AddCustomer(UserUpdate model);
-        Task<DynamicResult> UpdateCustomer(UserUpdate model);
-        Task<DynamicResult> DeleteCustomerById(UserUpdate model);
+        Task<DynamicResult> UpdateCustomer(string phone,UserUpdate model, UserLogin auth);
+        Task<DynamicResult> DeleteCustomer(string phone, UserLogin auth);
 
     }
 }

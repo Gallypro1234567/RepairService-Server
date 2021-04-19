@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using WorkAppReactAPI.Asset;
 using WorkAppReactAPI.Assets;
 using WorkAppReactAPI.Configuration;
 using WorkAppReactAPI.Data;
@@ -48,56 +47,6 @@ namespace WorkAppReactAPI.Controllers
 
         }
         [HttpPost]
-        [Route("register")]
-        public async Task<IActionResult> Register([FromBody] UserRegister model)
-        {
-            if (ModelState.IsValid)
-            {
-                var existingUser = await _context.Users.FirstOrDefaultAsync(c => c.Phone == model.Phone);
-                if (existingUser != null)
-                {
-                    return BadRequest(new RegistrationResponse
-                    {
-                        Errors = new List<string>()
-                            {
-                                 "Phone arleay in use"
-                            },
-                        Success = false
-                    });
-                }
-                var key = Encryptor.Encrypt(model.Password);
-
-                var newuser = new UserRegister { Phone = model.Phone, Password = key, Fullname = model.Fullname, isCustomer = model.isCustomer };
-                var sqlresult = await _users.Register(newuser);
-
-                if (sqlresult.Status == 1)
-                {
-                    var jwttoken = GenerateJwtToken(new UserLogin() { Phone = model.Phone, Password = model.Password });
-                    return Ok(new RegistrationResponse
-                    {
-                        Success = true,
-                        Token = jwttoken
-                    });
-                }
-                else
-                {
-                    return BadRequest(new RegistrationResponse
-                    {
-                        Errors = new List<string>() { "Error" },
-                        Success = false
-                    });
-                }
-            }
-            return BadRequest(new RegistrationResponse
-            {
-                Errors = new List<string>(){
-                            "Invalid payload"
-                        },
-                Success = false
-            });
-
-        }
-        [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] UserLogin user)
         {
@@ -126,7 +75,8 @@ namespace WorkAppReactAPI.Controllers
                         Success = false
                     });
                 }
-                var jwtToken = GenerateJwtToken(new UserLogin() { Phone = existingUser.Phone, Password = user.Password });
+                var isCustomer = await _context.Customers.FirstOrDefaultAsync(c => c.Id == existingUser.Id);
+                var jwtToken = GenerateJwtToken(new UserLogin() { Phone = existingUser.Phone, Password = user.Password, isCustomer = isCustomer != null ? true : false, Role = existingUser.Role });
                 return Ok(new RegistrationResponse
                 {
                     Success = true,
@@ -142,6 +92,58 @@ namespace WorkAppReactAPI.Controllers
                 Success = false
             });
         }
+
+        [HttpPost]
+        [Route("register")]
+        public async Task<IActionResult> Register([FromBody] UserRegister model)
+        {
+            if (ModelState.IsValid)
+            {
+                var existingUser = await _context.Users.FirstOrDefaultAsync(c => c.Phone == model.Phone);
+                if (existingUser != null)
+                {
+                    return BadRequest(new RegistrationResponse
+                    {
+                        Errors = new List<string>()
+                            {
+                                 "Phone arleay in use"
+                            },
+                        Success = false
+                    });
+                }
+                var key = Encryptor.Encrypt(model.Password);
+
+                var newuser = new UserRegister { Phone = model.Phone, Password = key, Fullname = model.Fullname, isCustomer = model.isCustomer };
+                var sqlresult = await _users.Register(newuser);
+
+                if (sqlresult.Status == 1)
+                {
+                    var jwttoken = GenerateJwtToken(new UserLogin() { Phone = model.Phone, Password = model.Password, Role = 1 });
+                    return Ok(new RegistrationResponse
+                    {
+                        Success = true,
+                        Token = jwttoken
+                    });
+                }
+                else
+                {
+                    return BadRequest(new RegistrationResponse
+                    {
+                        Errors = new List<string>() { "Error" },
+                        Success = false
+                    });
+                }
+            }
+            return BadRequest(new RegistrationResponse
+            {
+                Errors = new List<string>(){
+                            "Invalid payload"
+                        },
+                Success = false
+            });
+
+        }
+
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
@@ -176,25 +178,25 @@ namespace WorkAppReactAPI.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         [Route("update")]
-        public async Task<IActionResult> Update([FromForm] UserUpdate user, [FromHeader] HeaderParamaters paramaters)
+        public async Task<IActionResult> Update([FromQuery] string phone, [FromForm] UserUpdate user, [FromHeader] HeaderParamaters paramaters)
         {
             if (ModelState.IsValid)
             {
-                var httpcontext = _httpContextAccessor.HttpContext.Request;
-                var auth = httpcontext.Headers["Authorization"].ToString();
+
                 var handler = new JwtSecurityTokenHandler();
-                var tokenStr = auth.Substring("Bearer ".Length).Trim();
+                var tokenStr = paramaters.Authorization.Substring("Bearer ".Length).Trim();
                 var jsonToken = handler.ReadToken(tokenStr);
                 var tokenS = jsonToken as JwtSecurityToken;
 
                 var tokenModel = new UserLogin()
                 {
                     Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
-                    Password = tokenS.Claims.First(claim => claim.Type == "Password").Value
-                }; 
+                    Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                    isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                };
                 var file = user.File;
 
-                if (file.Length > 0)
+                if (file != null)
                 {
                     var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
                     if (path.Length == 0)
@@ -208,9 +210,9 @@ namespace WorkAppReactAPI.Controllers
                     user.ImageUrl = path;
                 }
 
-                var result = await _users.UpdateInformation(user, tokenModel);
-                if (result.Status != 1)
-                {   
+                var result = await _users.UpdateInformation(phone, user, tokenModel);
+                if (file != null && result.Status != 1)
+                {
                     System.IO.File.Delete(user.ImageUrl);
                 }
                 return Ok(result);
@@ -223,6 +225,26 @@ namespace WorkAppReactAPI.Controllers
                 Success = false
             });
         }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet]
+        [Route("detail")]
+        public async Task<IActionResult> Detail([FromHeader] HeaderParamaters header)
+        {
+
+            var handler = new JwtSecurityTokenHandler();
+            var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
+            var jsonToken = handler.ReadToken(tokenStr);
+            var tokenS = jsonToken as JwtSecurityToken;
+
+            var tokenModel = new UserLogin()
+            {
+                Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+            };
+            var result = await _users.Detail(tokenModel);
+            return Ok(result);
+        }
         private string GenerateJwtToken(UserLogin user)
         {
             var jwtTokenhandler = new JwtSecurityTokenHandler();
@@ -232,6 +254,8 @@ namespace WorkAppReactAPI.Controllers
                 Subject = new ClaimsIdentity(new[]{
                       new Claim ("Phone", user.Phone),
                       new Claim ("Password", user.Password),
+                      new Claim ("isCustomer", user.isCustomer.ToString()),
+                      new Claim ("Role", user.Role.ToString()),
                       new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                   }),
                 Expires = DateTime.UtcNow.AddHours(6),

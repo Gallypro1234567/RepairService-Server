@@ -21,7 +21,7 @@ namespace WorkAppReactAPI.Dtos.Requests
         public DateTime FromDate { set; get; }
         [Required]
         public DateTime ToDate { set; get; }
-        public string ListService { get; set; }
+        public string ServiceCodes { get; set; }
     }
 
     public class PreferentialDrop

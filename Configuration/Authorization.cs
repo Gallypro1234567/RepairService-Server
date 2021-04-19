@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using WorkAppReactAPI.Asset;
+using WorkAppReactAPI.Assets;
 using WorkAppReactAPI.Data;
 using WorkAppReactAPI.Data.Interface;
 using WorkAppReactAPI.Dtos.Requests;

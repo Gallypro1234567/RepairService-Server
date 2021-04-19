@@ -18,11 +18,11 @@ namespace WorkAppReactAPI.Assets
                 }
                 var fileName = Guid.NewGuid() + ext;
               
-                if (!Directory.Exists(_hostingEnvironment.ContentRootPath + folderpath))
+                if (!Directory.Exists(_hostingEnvironment.WebRootPath + folderpath))
                 {
-                    Directory.CreateDirectory(_hostingEnvironment.ContentRootPath + folderpath);
+                    Directory.CreateDirectory(_hostingEnvironment.WebRootPath + folderpath);
                 }
-                using (FileStream filetream = System.IO.File.Create(_hostingEnvironment.ContentRootPath + folderpath + fileName))
+                using (FileStream filetream = System.IO.File.Create(_hostingEnvironment.WebRootPath + folderpath + fileName))
                 {
                     file.CopyTo(filetream);
                     filetream.Flush();

@@ -10,9 +10,10 @@ namespace WorkAppReactAPI.Models
 
         [Key]
         public Guid Id { set; get; }
+        public string Code { set; get; }
         public string Position { set; get; }
         public bool isOnline { set; get; }
-        public bool isApproval { set; get; }
+        public int isApproval { set; get; } // 0 : chưa duyệt, 1: duyệt thành công, 2 : duyệt thất bại
         public DateTime CreateAt { set; get; }
 
         public virtual Service Service { get; set; }

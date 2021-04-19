@@ -15,6 +15,8 @@ namespace WorkAppReactAPI.Dtos.Requests
 
         [Required]
         public bool isCustomer { get; set; }
+        
+        public int Role { get; set; }
     }
     public class UserChangePassword 
     {
@@ -63,7 +65,7 @@ namespace WorkAppReactAPI.Dtos.Requests
         public DateTime Birthday { get; set; }
         public string Email { get; set; }
         public string ImageUrl { get; set; }
-         public IFormFile File { get; set; }
+        public IFormFile File { get; set; }
         public string Address { get; set; } 
         public string CMND { get; set; }
         public string ImageUrlOfCMND { get; set; }

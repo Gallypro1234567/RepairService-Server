@@ -26,9 +26,11 @@ namespace WorkAppReactAPI.Models
         public string ImageUrl { get; set; }
         public string Address { get; set; }
         public string RewardPoints { get; set; }
+        public int Role { get; set; }
         public bool isOnline { get; set; }
         public virtual ICollection<Customer> Customers { get; set; }
         public virtual ICollection<Worker> Workers { get; set; }
         public virtual ICollection<UserRole> UserRoles { set; get; }
+        public int Status { get; set; }  //  0: đã khóa, 1: đang kích hoạt
     }
 }

@@ -10,8 +10,9 @@ namespace WorkAppReactAPI.Data.Interface
 
         Task<DynamicResult> Login(UserLogin model);
         Task<DynamicResult> Register(UserRegister model);
+        Task<DynamicResult> Detail(UserLogin auth);
         Task<DynamicResult> ChangePassword(UserChangePassword model, UserLogin Auth);
-        Task<DynamicResult> UpdateInformation(UserUpdate model, UserLogin Auth);
+        Task<DynamicResult> UpdateInformation(string phone, UserUpdate model, UserLogin Auth);
 
     }
 }

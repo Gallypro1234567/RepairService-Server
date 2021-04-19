@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using WorkAppReactAPI.Assets;
 using WorkAppReactAPI.Configuration;
 using WorkAppReactAPI.Data.Interface;
-using WorkAppReactAPI.Dtos;
 using WorkAppReactAPI.Dtos.Requests;
 using WorkAppReactAPI.Models;
 
@@ -18,13 +17,13 @@ namespace WorkAppReactAPI.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ServicesController : ControllerBase
+    public class PostsController : ControllerBase
     {
         private readonly IWebHostEnvironment _hostingEnvironment;
 
-        private readonly IServiceRepo _repository;
+        private readonly IPostRepo _repository;
 
-        public ServicesController(IWebHostEnvironment hostEnvironment, IServiceRepo repository)
+        public PostsController(IWebHostEnvironment hostEnvironment, IPostRepo repository)
         {
             _hostingEnvironment = hostEnvironment;
             _repository = repository;
@@ -34,20 +33,49 @@ namespace WorkAppReactAPI.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<DynamicResult>> getAllService([FromQuery] Query model)
+        public async Task<ActionResult<DynamicResult>> getPosts([FromQuery] PostGet model)
         {
 
-            var result = await _repository.getListService(model);
-            return result;
+            var result = await _repository.GetPost(model);
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpGet]
+        [Route("{phone}")]
+        public async Task<ActionResult<DynamicResult>> getPostsByUser([FromQuery] PostGet model,[FromHeader] HeaderParamaters header)
+        {
+            var result = new DynamicResult();
+            var handler = new JwtSecurityTokenHandler();
+            var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
+            var jsonToken = handler.ReadToken(tokenStr);
+            var tokenS = jsonToken as JwtSecurityToken;
+
+            var auth = new UserLogin()
+            {
+                Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
+            };
+            if (auth.isCustomer)
+            {
+                result = await _repository.GetPostByCustomer(model, auth);
+            }
+            else
+            {
+                result = await _repository.GetPostByWorker(model,auth);
+            }
+
+            return Ok(result);
         }
 
         [Authorize]
         [HttpPost]
         [Route("add")]
-        public async Task<ActionResult<DynamicResult>> addService([FromForm] ServiceUpdate model, [FromHeader] HeaderParamaters header)
+        public async Task<ActionResult<DynamicResult>> addPost([FromForm] PostUpdate model, [FromHeader] HeaderParamaters header)
         {
-            var result = new DynamicResult();
             var file = model.Image;
+            var result = new DynamicResult();
             if (file != null)
             {
                 var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
@@ -62,6 +90,46 @@ namespace WorkAppReactAPI.Controllers
                 model.ImageUrl = path;
             }
 
+            var handler = new JwtSecurityTokenHandler();
+            var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
+            var jsonToken = handler.ReadToken(tokenStr);
+            var tokenS = jsonToken as JwtSecurityToken;
+
+            var auth = new UserLogin()
+            {
+                Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
+            };
+            result = await _repository.InserPost(model, auth);
+            if(file != null && result.Status != 1)
+            {
+                System.IO.File.Delete(model.ImageUrl);
+            }
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("updatebycustomer")]
+        public async Task<ActionResult<DynamicResult>> updatePostbyCustomer([FromQuery] string code, [FromForm] PostUpdate model, [FromHeader] HeaderParamaters header)
+        {
+            var file = model.Image;
+            var result = new DynamicResult();
+            if (file != null)
+            {
+                var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
+                if (path.Length == 0)
+                {
+                    return BadRequest(new DynamicResult()
+                    {
+                        Message = "File không hợp lệ",
+                        Status = 1
+                    });
+                }
+                model.ImageUrl = path;
+            }
 
             var handler = new JwtSecurityTokenHandler();
             var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
@@ -73,35 +141,24 @@ namespace WorkAppReactAPI.Controllers
                 Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
                 Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
                 isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
-                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value)
+                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
             };
-            result = await _repository.AddService(model, auth);
+            result = await _repository.UpdatePostByCustomer(code,model, auth);
             if (file != null && result.Status != 1)
             {
                 System.IO.File.Delete(model.ImageUrl);
             }
             return Ok(result);
         }
+
         [Authorize]
         [HttpPost]
-        [Route("update")]
-        public async Task<ActionResult<DynamicResult>> updateService([FromQuery] string code, [FromForm] ServiceUpdate model, [FromHeader] HeaderParamaters header)
+        [Route("updatebyworker")]
+        public async Task<ActionResult<DynamicResult>> updatePostbyWorker([FromQuery] string code, [FromHeader] HeaderParamaters header)
         {
+
             var result = new DynamicResult();
-            var file = model.Image;
-            if (file != null)
-            {
-                var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
-                if (path.Length == 0)
-                {
-                    return BadRequest(new DynamicResult()
-                    {
-                        Message = "File không hợp lệ",
-                        Status = 1
-                    });
-                }
-                model.ImageUrl = path;
-            }
+
             var handler = new JwtSecurityTokenHandler();
             var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
             var jsonToken = handler.ReadToken(tokenStr);
@@ -112,20 +169,19 @@ namespace WorkAppReactAPI.Controllers
                 Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
                 Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
                 isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
-                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value)
+                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
             };
-            result = await _repository.UpdateService(code, model, auth);
-            if (file != null && result.Status != 1)
-            {
-                System.IO.File.Delete(model.ImageUrl);
-            }
+            result = await _repository.UpdatePostByWorker(code, auth);
             return Ok(result);
         }
         [Authorize]
         [HttpPost]
         [Route("delete")]
-        public async Task<ActionResult<DynamicResult>> deleteServiceById([FromQuery] string code, [FromHeader] HeaderParamaters header)
+        public async Task<ActionResult<DynamicResult>> deletePostById([FromQuery] string code, [FromHeader] HeaderParamaters header)
         {
+
+            var result = new DynamicResult();
+
             var handler = new JwtSecurityTokenHandler();
             var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
             var jsonToken = handler.ReadToken(tokenStr);
@@ -136,10 +192,10 @@ namespace WorkAppReactAPI.Controllers
                 Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
                 Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
                 isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
-                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value)
+                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
             };
-            var result = await _repository.DeleteService(code, auth);
-            return result;
+            result = await _repository.DeletePost(code, auth);
+            return Ok(result);
         }
     }
 }

@@ -4,7 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace WorkAppReactAPI.Asset
+namespace WorkAppReactAPI.Assets
 {
     public class Encryptor
     {
