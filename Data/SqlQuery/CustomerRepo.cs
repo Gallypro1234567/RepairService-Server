@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using WorkAppReactAPI.Assets;
 using WorkAppReactAPI.Configuration;
 using WorkAppReactAPI.Data.Interface;
+using WorkAppReactAPI.Dtos;
 using WorkAppReactAPI.Dtos.Requests;
 
 namespace WorkAppReactAPI.Data.SqlQuery
@@ -18,8 +19,13 @@ namespace WorkAppReactAPI.Data.SqlQuery
         {
             _context = context;
         }
-        public async Task<DynamicResult> getCustomer()
+        public async Task<DynamicResult> getCustomer(Query model)
         {
+              SqlParameter[] parameters ={
+                new SqlParameter("@start", SqlDbType.Decimal) { Value = model.Start},
+                new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
+                new SqlParameter("@order", SqlDbType.Int) { Value = model.Order}
+            };
             var result = await _context.ExecuteDataTable("[dbo].[sp_GetCustomers]", null).JsonDataAsync();
             return result;
         }
@@ -45,7 +51,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 new SqlParameter("@Phone", SqlDbType.VarChar) { Value = model.Phone},
                 new SqlParameter("@Email", SqlDbType.VarChar) { Value = model.Email},
                 new SqlParameter("@Fullname", SqlDbType.NVarChar) { Value = model.Fullname},
-                new SqlParameter("@Birthday", SqlDbType.DateTime) { Value = model.Birthday},
+                new SqlParameter("@Sex", SqlDbType.Int) { Value = model.Sex},
                 new SqlParameter("@Address", SqlDbType.DateTime) { Value = model.Address},
             };
             var result = await _context.ExecuteDataTable("[dbo].[sp_InsertCustomer]", parameters).JsonDataAsync();
@@ -71,7 +77,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = user.Id },
                     new SqlParameter("@Phone", SqlDbType.VarChar) { Value = user.Phone},
                     new SqlParameter("@FullName", SqlDbType.NVarChar) { Value = model.Fullname},
-                    new SqlParameter("@Birthday", SqlDbType.DateTime) { Value = model.Birthday},
+                    new SqlParameter("@Sex", SqlDbType.Int) { Value = model.Sex},
                     new SqlParameter("@Email", SqlDbType.VarChar) { Value = model.Email},
                     new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl},
                     new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address}

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkAppReactAPI.Configuration;
 using WorkAppReactAPI.Data.Interface;
+using WorkAppReactAPI.Dtos;
 using WorkAppReactAPI.Dtos.Requests;
 
 namespace WorkAppReactAPI.Controllers
@@ -28,9 +29,9 @@ namespace WorkAppReactAPI.Controllers
         //GET Customer
         [HttpGet]
         [Route("customers")]
-        public async Task<ActionResult<DynamicResult>> getCustomer()
+        public async Task<ActionResult<DynamicResult>> getCustomer([FromQuery]Query model)
         {
-            var result = await _CustomerRepository.getCustomer();
+            var result = await _CustomerRepository.getCustomer(model);
             return Ok(result);
         }
         [HttpGet]
@@ -65,7 +66,7 @@ namespace WorkAppReactAPI.Controllers
         //GET worker
         [HttpGet]
         [Route("workers")]
-        public async Task<ActionResult<DynamicResult>> getWorker([FromQuery] WorkerGet model)
+        public async Task<ActionResult<DynamicResult>> getWorker([FromQuery] Query model)
         {
             var result = await _workerRepository.getWorker(model);
             return Ok(result);

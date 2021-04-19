@@ -24,9 +24,9 @@ namespace WorkAppReactAPI.Data.SqlQuery
         {
             SqlParameter[] parameters ={
                 new SqlParameter("@Code", SqlDbType.NVarChar) { Value = model.Code == null ? DBNull.Value :model.Code},
-                new SqlParameter("@Start", SqlDbType.Int) { Value = model.Start},
-                new SqlParameter("@Lenght", SqlDbType.Int) { Value = model.Lenght},
-                new SqlParameter("@Order", SqlDbType.Int) { Value = model.Order},
+                new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
+                new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
+                new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
             };
             var result = await _context.ExecuteDataTable("[dbo].[sp_GetAllWorkerOfServices]", parameters).JsonDataAsync();
             return result;

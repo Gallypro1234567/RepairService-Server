@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using WorkAppReactAPI.Assets;
 using WorkAppReactAPI.Configuration;
+using WorkAppReactAPI.Data;
 using WorkAppReactAPI.Data.Interface;
 using WorkAppReactAPI.Dtos.Requests;
 using WorkAppReactAPI.Models;
@@ -22,7 +23,6 @@ namespace WorkAppReactAPI.Controllers
         private readonly IWebHostEnvironment _hostingEnvironment;
 
         private readonly IPostRepo _repository;
-
         public PostsController(IWebHostEnvironment hostEnvironment, IPostRepo repository)
         {
             _hostingEnvironment = hostEnvironment;
@@ -40,32 +40,11 @@ namespace WorkAppReactAPI.Controllers
             return Ok(result);
         }
         [Authorize]
-        [HttpGet]
-        [Route("{phone}")]
-        public async Task<ActionResult<DynamicResult>> getPostsByUser([FromQuery] PostGet model,[FromHeader] HeaderParamaters header)
+        [HttpGet("{phone}")]
+        public async Task<ActionResult<DynamicResult>> getPostsByUser(string phone, [FromQuery] PostGet model)
         {
-            var result = new DynamicResult();
-            var handler = new JwtSecurityTokenHandler();
-            var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
-            var jsonToken = handler.ReadToken(tokenStr);
-            var tokenS = jsonToken as JwtSecurityToken;
 
-            var auth = new UserLogin()
-            {
-                Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
-                Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
-                isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
-                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
-            };
-            if (auth.isCustomer)
-            {
-                result = await _repository.GetPostByCustomer(model, auth);
-            }
-            else
-            {
-                result = await _repository.GetPostByWorker(model,auth);
-            }
-
+            var result = await _repository.GetPostByPhone(phone, model);
             return Ok(result);
         }
 
@@ -103,7 +82,7 @@ namespace WorkAppReactAPI.Controllers
                 Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
             };
             result = await _repository.InserPost(model, auth);
-            if(file != null && result.Status != 1)
+            if (file != null && result.Status != 1)
             {
                 System.IO.File.Delete(model.ImageUrl);
             }
@@ -143,7 +122,7 @@ namespace WorkAppReactAPI.Controllers
                 isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
                 Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
             };
-            result = await _repository.UpdatePostByCustomer(code,model, auth);
+            result = await _repository.UpdatePostByCustomer(code, model, auth);
             if (file != null && result.Status != 1)
             {
                 System.IO.File.Delete(model.ImageUrl);

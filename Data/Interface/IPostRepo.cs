@@ -10,8 +10,7 @@ namespace WorkAppReactAPI.Data.Interface
     {
         Task<DynamicResult> GetPost(PostGet model);
        // Task<DynamicResult> GetPostByUserId(UserLogin model);
-        Task<DynamicResult> GetPostByCustomer(PostGet model,UserLogin auth);
-        Task<DynamicResult> GetPostByWorker(PostGet model, UserLogin auth);
+        Task<DynamicResult> GetPostByPhone(string phone,PostGet model ); 
         Task<DynamicResult> InserPost(PostUpdate model, UserLogin auth);
         Task<DynamicResult> UpdatePostByCustomer(string code,PostUpdate model, UserLogin auth);
         Task<DynamicResult> UpdatePostByWorker(string code, UserLogin auth);
@@ -22,7 +21,7 @@ namespace WorkAppReactAPI.Data.Interface
     {
         public string ServiceCode { set; get; }
         public int Start { set; get; }
-        public int Lenght { set; get; }
+        public int Length { set; get; }
         public int Order { set; get; }
         public int Status { set; get; }
 

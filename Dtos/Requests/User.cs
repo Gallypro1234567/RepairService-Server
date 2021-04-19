@@ -61,8 +61,8 @@ namespace WorkAppReactAPI.Dtos.Requests
  
         [Phone]
         public string Phone { set; get; }
-        public string Fullname { set; get; }
-        public DateTime Birthday { get; set; }
+        public int Sex { get; set; }
+        public string Fullname { set; get; } 
         public string Email { get; set; }
         public string ImageUrl { get; set; }
         public IFormFile File { get; set; }

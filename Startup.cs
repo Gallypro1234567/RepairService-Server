@@ -33,7 +33,7 @@ namespace WorkAppReactAPI
         {
             services.Configure<JwtConfig>(Configuration.GetSection("JwtConfig"));
             services.AddDbContext<WorkerServiceContext>(opt => opt.UseSqlServer
-                (Configuration.GetConnectionString("WorkerServiceConnectionFTP")));
+                (Configuration.GetConnectionString("WorkerServiceConnection")));
 
             services.AddAuthentication(option =>
             {

@@ -23,7 +23,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             SqlParameter[] parameters ={
                 new SqlParameter("@Code", SqlDbType.VarChar) { Value = model.ServiceCode},
                 new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
-                new SqlParameter("@lenght", SqlDbType.Int) { Value = model.Lenght},
+                new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
                 new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
                 new SqlParameter("@status", SqlDbType.Int) { Value = model.Status},
             };
@@ -32,59 +32,32 @@ namespace WorkAppReactAPI.Data.SqlQuery
         }
 
 
-        public async Task<DynamicResult> GetPostByCustomer(PostGet model, UserLogin auth)
+        public async Task<DynamicResult> GetPostByPhone(string phone, PostGet model)
         {
             var result = new DynamicResult();
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Phone == auth.Phone);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Phone == phone);
             if (user == null)
             {
                 return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
             }
-
+            var isCustomer = await _context.Customers.Include(x => x.User).FirstOrDefaultAsync(x => x.User.Id == user.Id);
             SqlParameter[] parameters ={
-                new SqlParameter("@CustomerPhone", SqlDbType.VarChar) { Value = auth.Phone},
-                new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
-                new SqlParameter("@lenght", SqlDbType.Int) { Value = model.Lenght},
-                new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
-                new SqlParameter("@status", SqlDbType.Int) { Value = model.Status},
-            };
-            var Customer = await _context.Customers.FirstOrDefaultAsync(x => x.Id == user.Id);
-
-            if (Customer == null)
-            {
-                return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
-            }
-            result = await _context.ExecuteDataTable("[dbo].[sp_GetAllPostsByCustomer]", parameters).JsonDataAsync();
-            return result;
-        }
-
-        public async Task<DynamicResult> GetPostByWorker(PostGet model, UserLogin auth)
-        {
-            var result = new DynamicResult();
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Phone == auth.Phone);
-            if (user == null)
-            {
-                return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
-
-            }
-            SqlParameter[] parameters ={
-                new SqlParameter("@WorkerPhone", SqlDbType.VarChar) { Value = auth.Phone},
-                new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
-                new SqlParameter("@lenght", SqlDbType.Int) { Value = model.Lenght},
-                new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
-                new SqlParameter("@status", SqlDbType.Int) { Value = model.Status},
-            };
-            var worker = await _context.Workers.FirstOrDefaultAsync(x => x.Id == user.Id);
-
-            if (worker == null)
-            {
-                return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
-            }
+                    new SqlParameter("@Phone", SqlDbType.VarChar) { Value = phone},
+                    new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
+                    new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
+                    new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
+                    new SqlParameter("@status", SqlDbType.Int) { Value = model.Status},
+                };
+            if (isCustomer != null)
+            { 
+                result = await _context.ExecuteDataTable("[dbo].[sp_GetAllPostsByCustomer]", parameters).JsonDataAsync();
+                return result;
+            } 
+            
             result = await _context.ExecuteDataTable("[dbo].[sp_GetAllPostsByWorker]", parameters).JsonDataAsync();
             return result;
         }
-
         public async Task<DynamicResult> InserPost(PostUpdate model, UserLogin auth)
         {
             var result = new DynamicResult();
@@ -192,13 +165,13 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
                 }
-                var check = await _context.WorkerOfServices.Include(x =>x.Worker).FirstOrDefaultAsync(x => x.Worker.Id == user.Id);
+                var check = await _context.WorkerOfServices.Include(x => x.Worker).FirstOrDefaultAsync(x => x.Worker.Id == user.Id);
                 if (check == null)
                 {
                     return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
                 }
 
-                var post = await _context.Posts.Include(x =>x.Customer).FirstOrDefaultAsync(x => x.Code == code);
+                var post = await _context.Posts.Include(x => x.Customer).FirstOrDefaultAsync(x => x.Code == code);
                 if (post == null)
                 {
                     return new DynamicResult() { Message = "Post not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
@@ -268,31 +241,6 @@ namespace WorkAppReactAPI.Data.SqlQuery
             return result;
         }
 
-        // public async Task<DynamicResult> GetPostByUserId(UserLogin auth)
-        // {
-        //     var result = new DynamicResult();
-        //     var user = await _context.Users.FirstOrDefaultAsync(x => x.Phone == auth.Phone);
-        //     if (user == null)
-        //     {
-        //         return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
-
-        //     }
-        //     SqlParameter[] parameters ={
-        //         new SqlParameter("@UserID", SqlDbType.UniqueIdentifier) { Value = user.Id},
-        //     };
-        //     var isCustomer = await _context.Customers.FirstOrDefaultAsync(x => x.Id == user.Id);
-        //     if (isCustomer != null)
-        //     {
-        //         result = await _context.ExecuteDataTable("[dbo].[sp_GetPostByWorkerId]", parameters).JsonDataAsync();
-
-        //     }
-        //     else
-        //     {
-        //         result = await _context.ExecuteDataTable("[dbo].[sp_GetPostByWorkerId]", parameters).JsonDataAsync();
-
-        //     }
-
-        //     return result;
-        // }
+         
     }
 }

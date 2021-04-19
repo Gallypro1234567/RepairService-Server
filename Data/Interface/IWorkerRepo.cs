@@ -1,13 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using WorkAppReactAPI.Configuration;
+using WorkAppReactAPI.Dtos;
 using WorkAppReactAPI.Dtos.Requests;
 
 namespace WorkAppReactAPI.Data.Interface
 {
     public interface IWorkerRepo
     {
-        Task<DynamicResult> getWorker(WorkerGet model); 
+        Task<DynamicResult> getWorker(Query model); 
         Task<DynamicResult> GetWorkerByPhone(String phone);
         Task<DynamicResult> AddWorker(UserUpdate model);
         Task<DynamicResult> UpdateWorker(string phone, UserUpdate model, UserLogin auth);

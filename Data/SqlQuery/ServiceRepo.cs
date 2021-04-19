@@ -25,7 +25,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
         {
             SqlParameter[] parameters ={
                     new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
-                    new SqlParameter("@lenght", SqlDbType.Int) { Value = model.Lenght},
+                    new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
                     new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
                     
                 };

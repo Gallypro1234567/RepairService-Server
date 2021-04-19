@@ -138,7 +138,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = user.Id },
                     new SqlParameter("@Phone", SqlDbType.VarChar) { Value = user.Phone},
                     new SqlParameter("@FullName", SqlDbType.NVarChar) { Value = model.Fullname},
-                    new SqlParameter("@Birthday", SqlDbType.DateTime) { Value = model.Birthday},
+                    new SqlParameter("@Sex", SqlDbType.Int) { Value = model.Sex},
                     new SqlParameter("@Email", SqlDbType.VarChar) { Value = model.Email},
                     new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl},
                     new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address}
@@ -151,7 +151,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = user.Id },
                     new SqlParameter("@Phone", SqlDbType.VarChar) { Value = user.Phone},
                     new SqlParameter("@FullName", SqlDbType.NVarChar) { Value = model.Fullname},
-                    new SqlParameter("@Birthday", SqlDbType.DateTime) { Value = model.Birthday},
+                    new SqlParameter("@Sex", SqlDbType.Int) { Value = model.Sex},
                     new SqlParameter("@Email", SqlDbType.VarChar) { Value = model.Email},
                     new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl},
                     new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address},

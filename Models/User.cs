@@ -20,8 +20,8 @@ namespace WorkAppReactAPI.Models
 
         [Required]
         [MaxLength(250)]
-        public string Fullname { set; get; }
-        public DateTime Birthday { get; set; }
+        public string Fullname { set; get; } 
+        public int Sex { get; set; }
         public string Email { get; set; }
         public string ImageUrl { get; set; }
         public string Address { get; set; }

@@ -9,7 +9,7 @@ namespace WorkAppReactAPI.Dtos
     {
         public string Code { get; set; }
         public int Start { get; set; }
-        public int Lenght { get; set; }
+        public int Length { get; set; }
         public int Order { get; set; }
         public int status { get; set; }
     }

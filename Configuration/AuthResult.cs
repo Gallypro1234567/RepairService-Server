@@ -9,6 +9,7 @@ namespace WorkAppReactAPI.Configuration
         public bool Success { set; get; }
         public List<string> Errors { set; get; }
         public string Token { get; set; }
+        public bool isCustomer { get; set; }
     }
     public class AuthorResult
     {
@@ -19,12 +20,12 @@ namespace WorkAppReactAPI.Configuration
         public List<Dictionary<string, object>> Data { set; get; }
     }
 
-     public class HeaderParamaters
+    public class HeaderParamaters
     {
 
         [FromHeader]
         [Required]
         public string Authorization { get; set; }
     }
- 
+
 }

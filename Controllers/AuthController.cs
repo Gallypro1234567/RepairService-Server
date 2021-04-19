@@ -81,6 +81,7 @@ namespace WorkAppReactAPI.Controllers
                 {
                     Success = true,
                     Token = jwtToken,
+                    isCustomer = isCustomer != null ? true : false,
                 });
 
             }
@@ -122,7 +123,7 @@ namespace WorkAppReactAPI.Controllers
                     return Ok(new RegistrationResponse
                     {
                         Success = true,
-                        Token = jwttoken
+                        Token = jwttoken 
                     });
                 }
                 else
