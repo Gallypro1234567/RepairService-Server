@@ -80,11 +80,11 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = key},
                     new SqlParameter("@Code", SqlDbType.VarChar) { Value = model.Code},
                     new SqlParameter("@Title", SqlDbType.NVarChar) { Value = model.Title},
-                    new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl},
-                    new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.Description},
+                    new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl == null? DBNull.Value : model.ImageUrl},
+                    new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.Description  == null? DBNull.Value : model.Description},
                     new SqlParameter("@Percent", SqlDbType.Float) { Value = model.Percents},
-                    new SqlParameter("@FromDate", SqlDbType.DateTime) { Value = model.FromDate},
-                    new SqlParameter("@ToDate", SqlDbType.DateTime) { Value = model.ToDate}
+                    new SqlParameter("@FromDate", SqlDbType.DateTime) { Value = model.FromDate  == null? DBNull.Value : model.FromDate},
+                    new SqlParameter("@ToDate", SqlDbType.DateTime) { Value = model.ToDate  == null? DBNull.Value : model.ToDate}
 
                 };
 
@@ -229,7 +229,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     return failure;
                 }
                 var checkpreferential = await _context.Preferentials.Where(x => x.Title != model.Title.Trim()).ToListAsync();
-                if (checkpreferential.Count() != 0 && checkpreferential.Count()  != 1 )
+                if (checkpreferential.Count() == 0 && checkpreferential.Count()  == 1 )
                 {
                     var failure = new DynamicResult() { Message = "Preferential title was used", Type = "Error", Status = 2, Totalrow = 0 };
                     return failure;
@@ -249,11 +249,11 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = preferential.Id},
                     new SqlParameter("@Code", SqlDbType.VarChar) { Value = preferential.Code},
                     new SqlParameter("@Title", SqlDbType.NVarChar) { Value = model.Title},
-                    new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl},
-                    new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.Description},
+                    new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl == null ? DBNull.Value :  model.ImageUrl},
+                    new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.Description == null ? DBNull.Value :  model.Description},
                     new SqlParameter("@Percent", SqlDbType.Float) { Value = model.Percents},
-                    new SqlParameter("@FromDate", SqlDbType.DateTime) { Value = model.FromDate},
-                    new SqlParameter("@ToDate", SqlDbType.DateTime) { Value = model.ToDate}
+                    new SqlParameter("@FromDate", SqlDbType.DateTime) { Value = model.FromDate == null ? DBNull.Value :  model.FromDate},
+                    new SqlParameter("@ToDate", SqlDbType.DateTime) { Value = model.ToDate == null ? DBNull.Value :  model.ToDate}
 
                 };
   

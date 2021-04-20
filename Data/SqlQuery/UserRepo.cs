@@ -138,10 +138,11 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = user.Id },
                     new SqlParameter("@Phone", SqlDbType.VarChar) { Value = user.Phone},
                     new SqlParameter("@FullName", SqlDbType.NVarChar) { Value = model.Fullname},
+                    
                     new SqlParameter("@Sex", SqlDbType.Int) { Value = model.Sex},
-                    new SqlParameter("@Email", SqlDbType.VarChar) { Value = model.Email},
-                    new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl},
-                    new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address}
+                    new SqlParameter("@Email", SqlDbType.VarChar) { Value = model.Email == null ? DBNull.Value: model.Email },
+                    new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl == null ? DBNull.Value: model.ImageUrl },
+                    new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address == null ? DBNull.Value: model.Address }
                 };
                     result = await _context.ExecuteDataTable("[dbo].[sp_UpdateCustomer]", parameters1).JsonDataAsync();
                     return result;
@@ -152,10 +153,10 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@Phone", SqlDbType.VarChar) { Value = user.Phone},
                     new SqlParameter("@FullName", SqlDbType.NVarChar) { Value = model.Fullname},
                     new SqlParameter("@Sex", SqlDbType.Int) { Value = model.Sex},
-                    new SqlParameter("@Email", SqlDbType.VarChar) { Value = model.Email},
-                    new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl},
-                    new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address},
-                    new SqlParameter("@CMND", SqlDbType.VarChar) { Value = model.CMND},
+                    new SqlParameter("@Email", SqlDbType.VarChar) { Value = model.Email == null ? DBNull.Value: model.Email},
+                    new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl == null ? DBNull.Value: model.ImageUrl},
+                    new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address == null ? DBNull.Value: model.Address},
+                    new SqlParameter("@CMND", SqlDbType.VarChar) { Value = model.CMND == null ? DBNull.Value: model.CMND},
                     new SqlParameter("@ImageUrlOfCMND", SqlDbType.VarChar) { Value = model.ImageUrlOfCMND == null ?  DBNull.Value :  model.ImageUrlOfCMND}
                 };
                 result = await _context.ExecuteDataTable("[dbo].[sp_UpdateWorker]", parameters2).JsonDataAsync();

@@ -26,7 +26,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
                 new SqlParameter("@order", SqlDbType.Int) { Value = model.Order}
             };
-            var result = await _context.ExecuteDataTable("[dbo].[sp_GetCustomers]", null).JsonDataAsync();
+            var result = await _context.ExecuteDataTable("[dbo].[sp_GetCustomers]", parameters).JsonDataAsync();
             return result;
         }
 
