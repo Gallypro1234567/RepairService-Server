@@ -82,6 +82,7 @@ namespace WorkAppReactAPI.Controllers
                     Success = true,
                     Token = jwtToken,
                     isCustomer = isCustomer != null ? true : false,
+                    Role = existingUser.Role
                 });
 
             }

@@ -10,6 +10,7 @@ namespace WorkAppReactAPI.Configuration
         public List<string> Errors { set; get; }
         public string Token { get; set; }
         public bool isCustomer { get; set; }
+        public int Role { get; set; }
     }
     public class AuthorResult
     {
