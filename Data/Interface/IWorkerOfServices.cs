@@ -11,6 +11,7 @@ namespace WorkAppReactAPI.Data.Interface
     public interface IWorkerOfServicesRepo
     {
         Task<DynamicResult> GetallWorkerOfServices(Query model);
+        Task<DynamicResult> GetWorkerOfServicesDetail(Query model);
         Task<DynamicResult> RegisterWorkerOfServices(WorkerOfServicesUpdate model, UserLogin auth);  // insert
         Task<DynamicResult> VetificationWorkerOfServices(WorkerOfServicesUpdate model, UserLogin auth); // update
        

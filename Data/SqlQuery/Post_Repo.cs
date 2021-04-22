@@ -21,13 +21,24 @@ namespace WorkAppReactAPI.Data.SqlQuery
         public async Task<DynamicResult> GetPost(PostGet model)
         {
             SqlParameter[] parameters ={
-                new SqlParameter("@Code", SqlDbType.VarChar) { Value = model.ServiceCode},
+                new SqlParameter("@Code", SqlDbType.VarChar) { Value = model.ServiceCode == null ? DBNull.Value : model.ServiceCode },
                 new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
                 new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
                 new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
-                new SqlParameter("@status", SqlDbType.Int) { Value = model.Status},
+                new SqlParameter("@status", SqlDbType.Int) { Value = model.Status == null ? DBNull.Value : model.Status},
             };
             var result = await _context.ExecuteDataTable("[dbo].[sp_GetAllPosts]", parameters).JsonDataAsync();
+            return result;
+        }
+        public async Task<DynamicResult> GetRecentlyPosts(PostGet model)
+        {
+            SqlParameter[] parameters ={
+                new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
+                new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
+                new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
+                new SqlParameter("@status", SqlDbType.Int) { Value = model.Status == null ? DBNull.Value : model.Status},
+            };
+            var result = await _context.ExecuteDataTable("[dbo].[sp_GetRecentlyPosts]", parameters).JsonDataAsync();
             return result;
         }
 
@@ -42,20 +53,28 @@ namespace WorkAppReactAPI.Data.SqlQuery
 
             }
             var isCustomer = await _context.Customers.Include(x => x.User).FirstOrDefaultAsync(x => x.User.Id == user.Id);
-            SqlParameter[] parameters ={
+            SqlParameter[] parameters1 ={
                     new SqlParameter("@Phone", SqlDbType.VarChar) { Value = phone},
                     new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
                     new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
                     new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
                     new SqlParameter("@status", SqlDbType.Int) { Value = model.Status},
                 };
+            SqlParameter[] parameters2 ={
+                    new SqlParameter("@Phone", SqlDbType.VarChar) { Value = phone},
+                    new SqlParameter("@WorkerOfServiceCode", SqlDbType.VarChar) { Value = model.ServiceCode},
+                    new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
+                    new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
+                    new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
+                    new SqlParameter("@status", SqlDbType.Int) { Value = model.Status},
+                };
             if (isCustomer != null)
-            { 
-                result = await _context.ExecuteDataTable("[dbo].[sp_GetAllPostsByCustomer]", parameters).JsonDataAsync();
+            {
+                result = await _context.ExecuteDataTable("[dbo].[sp_GetAllPostsByCustomer]", parameters1).JsonDataAsync();
                 return result;
-            } 
-            
-            result = await _context.ExecuteDataTable("[dbo].[sp_GetAllPostsByWorker]", parameters).JsonDataAsync();
+            }
+
+            result = await _context.ExecuteDataTable("[dbo].[sp_GetAllPostsByWorker]", parameters2).JsonDataAsync();
             return result;
         }
         public async Task<DynamicResult> InserPost(PostUpdate model, UserLogin auth)
@@ -65,6 +84,12 @@ namespace WorkAppReactAPI.Data.SqlQuery
             if (user == null)
             {
                 return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+
+            }
+            var service = await _context.Services.FirstOrDefaultAsync(x => x.Code == model.ServiceCode);
+            if (service == null)
+            {
+                return new DynamicResult() { Message = "Not found Service", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
             }
             var isCustomer = await _context.Customers.FirstOrDefaultAsync(x => x.Id == user.Id);
@@ -97,6 +122,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 //
                 new SqlParameter("@CustomerID", SqlDbType.UniqueIdentifier) { Value = isCustomer.Id},
                 new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value = DBNull.Value},
+                new SqlParameter("@ServiceID", SqlDbType.UniqueIdentifier) { Value = service.Id},
                 //
                 new SqlParameter("@Title", SqlDbType.NVarChar) { Value = model.Title},
                 new SqlParameter("@Position", SqlDbType.VarChar) { Value = model.Position == null ? DBNull.Value: model.Position},
@@ -125,7 +151,12 @@ namespace WorkAppReactAPI.Data.SqlQuery
             {
                 return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
             }
+            var service = await _context.Services.FirstOrDefaultAsync(x => x.Code == model.ServiceCode);
+            if (service == null)
+            {
+                return new DynamicResult() { Message = "Not found Service", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
+            }
             var post = await _context.Posts.FirstOrDefaultAsync(x => x.Code == code);
             if (post == null)
             {
@@ -140,6 +171,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 //
                 new SqlParameter("@CustomerID", SqlDbType.UniqueIdentifier) { Value = post.Customer.Id},
                 new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value = DBNull.Value},
+                 new SqlParameter("@ServiceID", SqlDbType.UniqueIdentifier) { Value = service.Id},
                 //
                 new SqlParameter("@Title", SqlDbType.NVarChar) { Value = model.Title},
                 new SqlParameter("@Position", SqlDbType.VarChar) { Value = model.Position == null ? DBNull.Value: model.Position},
@@ -165,16 +197,22 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
                 }
-                var check = await _context.WorkerOfServices.Include(x => x.Worker).FirstOrDefaultAsync(x => x.Worker.Id == user.Id);
-                if (check == null)
-                {
-                    return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
-                }
 
-                var post = await _context.Posts.Include(x => x.Customer).FirstOrDefaultAsync(x => x.Code == code);
+                var post = await _context.Posts.Include(x => x.Customer).Include(x => x.Service).Include(x => x.WorkerOfService).FirstOrDefaultAsync(x => x.Code == code);
                 if (post == null)
                 {
                     return new DynamicResult() { Message = "Post not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+                }
+                var service = await _context.Services.FirstOrDefaultAsync(x => x.Id == post.Service.Id);
+                if (service == null)
+                {
+                    return new DynamicResult() { Message = "Post Not found Service", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+
+                }
+                var checkWofS = await _context.WorkerOfServices.Include(x => x.Worker).FirstOrDefaultAsync(x => x.Worker.Id == user.Id && x.Id == service.Id);
+                if (checkWofS == null || checkWofS.isApproval != 1)
+                {
+                    return new DynamicResult() { Message = "You can not apply this post", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
                 }
 
                 // 
@@ -185,7 +223,8 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 //
                 new SqlParameter("@CustomerID", SqlDbType.UniqueIdentifier) { Value = post.Customer.Id},
                 //
-                new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value = check.Id},
+                new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value = checkWofS.Id},
+                new SqlParameter("@ServiceID", SqlDbType.UniqueIdentifier) { Value = post.Service.Id},
                 //
                 new SqlParameter("@Title", SqlDbType.NVarChar) { Value = post.Title},
                 new SqlParameter("@Position", SqlDbType.VarChar) { Value = post.Position == null ? DBNull.Value : post.Position},
@@ -241,6 +280,6 @@ namespace WorkAppReactAPI.Data.SqlQuery
             return result;
         }
 
-         
+
     }
 }

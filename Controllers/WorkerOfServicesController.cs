@@ -44,7 +44,7 @@ namespace WorkAppReactAPI.Controllers
         [Authorize]
         [HttpPost]
         [Route("register")]
-        public async Task<ActionResult<DynamicResult>> getPostsByUser([FromForm] WorkerOfServicesUpdate model,[FromHeader] HeaderParamaters header)
+        public async Task<ActionResult<DynamicResult>> Register([FromForm] WorkerOfServicesUpdate model,[FromHeader] HeaderParamaters header)
         {
             var result = new DynamicResult();
             var handler = new JwtSecurityTokenHandler();
@@ -67,7 +67,7 @@ namespace WorkAppReactAPI.Controllers
         [Authorize]
         [HttpPost]
         [Route("Vetification")]
-        public async Task<ActionResult<DynamicResult>> updatePostbyCustomer([FromForm] WorkerOfServicesUpdate model, [FromHeader] HeaderParamaters header)
+        public async Task<ActionResult<DynamicResult>> Vetification([FromForm] WorkerOfServicesUpdate model, [FromHeader] HeaderParamaters header)
         {
              
             var result = new DynamicResult(); 

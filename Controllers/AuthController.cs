@@ -124,7 +124,9 @@ namespace WorkAppReactAPI.Controllers
                     return Ok(new RegistrationResponse
                     {
                         Success = true,
-                        Token = jwttoken 
+                        Token = jwttoken,
+                        isCustomer = model.isCustomer,
+                        Role = 1
                     });
                 }
                 else

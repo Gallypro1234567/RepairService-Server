@@ -9,7 +9,7 @@ namespace WorkAppReactAPI.Data.Interface
     public interface IPostRepo
     {
         Task<DynamicResult> GetPost(PostGet model);
-       // Task<DynamicResult> GetPostByUserId(UserLogin model);
+         Task<DynamicResult> GetRecentlyPosts(PostGet model);
         Task<DynamicResult> GetPostByPhone(string phone,PostGet model ); 
         Task<DynamicResult> InserPost(PostUpdate model, UserLogin auth);
         Task<DynamicResult> UpdatePostByCustomer(string code,PostUpdate model, UserLogin auth);
@@ -23,12 +23,13 @@ namespace WorkAppReactAPI.Data.Interface
         public int Start { set; get; }
         public int Length { set; get; }
         public int Order { set; get; }
-        public int Status { set; get; }
+        public int? Status { set; get; }
 
     }
     public class PostUpdate
     {
         public string Code { set; get; }
+        public string ServiceCode { set; get; }
         public string Title { set; get; }
         public string Position { set; get; }
         public string Address { set; get; }

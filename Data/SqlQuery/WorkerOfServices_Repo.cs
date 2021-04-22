@@ -31,7 +31,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var result = await _context.ExecuteDataTable("[dbo].[sp_GetAllWorkerOfServices]", parameters).JsonDataAsync();
             return result;
         }
-
+        
         public async Task<DynamicResult> RegisterWorkerOfServices(WorkerOfServicesUpdate model, UserLogin auth)
         {
             var result = new DynamicResult();
@@ -45,6 +45,18 @@ namespace WorkAppReactAPI.Data.SqlQuery
             if (checkWorker == null)
             {
                 return new DynamicResult() { Message = "User not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+            }
+            var service = await _context.Services.FirstOrDefaultAsync(x => x.Code == model.ServiceCode);
+            if (service == null)
+            {
+                return new DynamicResult() { Message = "Service not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+
+            }
+            var Wofservice = await _context.WorkerOfServices.Include(x =>x.Worker).FirstOrDefaultAsync(x => x.Id == service.Id && x.Worker.Id == checkWorker.Id);
+            if (Wofservice != null)
+            {
+                return new DynamicResult() { Message = "Value is Alrealy Exited", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+
             }
             //
             Guid? key;
@@ -64,12 +76,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 number++;
             } while (await _context.WorkerOfServices.FirstOrDefaultAsync(x => x.Code == model.WorkerOfServicesCode) != null);
 
-            var service = await _context.Services.FirstOrDefaultAsync(x => x.Code == model.ServiceCode);
-            if (service == null)
-            {
-                return new DynamicResult() { Message = "Service not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
-
-            }
+            
             SqlParameter[] parameters ={
                 new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = key},
                 new SqlParameter("@Code", SqlDbType.VarChar) { Value = model.WorkerOfServicesCode},
@@ -163,6 +170,9 @@ namespace WorkAppReactAPI.Data.SqlQuery
             return result;
         }
 
-
+        public Task<DynamicResult> GetWorkerOfServicesDetail(Query model)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

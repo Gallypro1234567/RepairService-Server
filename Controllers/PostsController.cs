@@ -40,6 +40,15 @@ namespace WorkAppReactAPI.Controllers
             return Ok(result);
         }
         [Authorize]
+        [HttpGet]
+        [Route("Recently")]
+        public async Task<ActionResult<DynamicResult>> getRecentlyPosts([FromQuery] PostGet model)
+        {
+
+            var result = await _repository.GetRecentlyPosts(model);
+            return Ok(result);
+        }
+        [Authorize]
         [HttpGet("{phone}")]
         public async Task<ActionResult<DynamicResult>> getPostsByUser(string phone, [FromQuery] PostGet model)
         {

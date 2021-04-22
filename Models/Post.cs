@@ -26,6 +26,7 @@ namespace WorkAppReactAPI.Models
 
    
         public virtual WorkerOfService WorkerOfService { get; set; }
+        public virtual Service Service { get; set; }
 
     }
 }

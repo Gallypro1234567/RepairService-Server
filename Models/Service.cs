@@ -19,6 +19,7 @@ namespace WorkAppReactAPI.Models
         public DateTime CreateAt { set; get; }
         public virtual ICollection<WorkerOfService> WorkerOfServices { get; set; }
         public virtual ICollection<PreferentialOfService> PreferentialOfServices { get; set; }
+        public virtual ICollection<Post> Posts { get; set; }
 
 
     }
