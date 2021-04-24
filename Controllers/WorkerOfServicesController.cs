@@ -12,7 +12,7 @@ using WorkAppReactAPI.Data.Interface;
 using WorkAppReactAPI.Dtos;
 using WorkAppReactAPI.Dtos.Requests;
 using WorkAppReactAPI.Models;
- 
+
 
 namespace WorkAppReactAPI.Controllers
 {
@@ -36,15 +36,21 @@ namespace WorkAppReactAPI.Controllers
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<DynamicResult>> getWorkerOfServices([FromQuery] Query model)
-        { 
+        {
             var result = await _workerrepository.GetallWorkerOfServices(model);
             return Ok(result);
         }
-
+        [Authorize]
+        [HttpGet("{phone}")]
+        public async Task<ActionResult<DynamicResult>> getWorkerOfServicesDetail(string phone, [FromQuery] Query model)
+        {
+            var result = await _workerrepository.GetWorkerOfServicesByUser(phone,model);
+            return Ok(result);
+        }
         [Authorize]
         [HttpPost]
         [Route("register")]
-        public async Task<ActionResult<DynamicResult>> Register([FromForm] WorkerOfServicesUpdate model,[FromHeader] HeaderParamaters header)
+        public async Task<ActionResult<DynamicResult>> Register([FromForm] WorkerOfServicesUpdate model, [FromHeader] HeaderParamaters header)
         {
             var result = new DynamicResult();
             var handler = new JwtSecurityTokenHandler();
@@ -63,14 +69,14 @@ namespace WorkAppReactAPI.Controllers
             return Ok(result);
         }
 
-         
+
         [Authorize]
         [HttpPost]
         [Route("Vetification")]
         public async Task<ActionResult<DynamicResult>> Vetification([FromForm] WorkerOfServicesUpdate model, [FromHeader] HeaderParamaters header)
         {
-             
-            var result = new DynamicResult(); 
+
+            var result = new DynamicResult();
 
             var handler = new JwtSecurityTokenHandler();
             var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
@@ -84,11 +90,11 @@ namespace WorkAppReactAPI.Controllers
                 isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
                 Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
             };
-            result = await _workerrepository.VetificationWorkerOfServices(model, auth); 
-           
+            result = await _workerrepository.VetificationWorkerOfServices(model, auth);
+
             return Ok(result);
-        } 
-        
+        }
+
         [Authorize]
         [HttpPost]
         [Route("delete")]

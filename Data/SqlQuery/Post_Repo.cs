@@ -58,16 +58,17 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
                     new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
                     new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
-                    new SqlParameter("@status", SqlDbType.Int) { Value = model.Status},
+                    new SqlParameter("@status", SqlDbType.Int) { Value = model.Status == null ? DBNull.Value : model.Status},
                 };
             SqlParameter[] parameters2 ={
                     new SqlParameter("@Phone", SqlDbType.VarChar) { Value = phone},
-                    new SqlParameter("@WorkerOfServiceCode", SqlDbType.VarChar) { Value = model.ServiceCode},
+                    new SqlParameter("@WorkerOfServiceCode", SqlDbType.VarChar) { Value = model.WofSCode == null ? DBNull.Value : model.WofSCode},
                     new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
                     new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
                     new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
-                    new SqlParameter("@status", SqlDbType.Int) { Value = model.Status},
+                    new SqlParameter("@status", SqlDbType.Int) { Value =  model.Status == null ? DBNull.Value : model.Status},
                 };
+                
             if (isCustomer != null)
             {
                 result = await _context.ExecuteDataTable("[dbo].[sp_GetAllPostsByCustomer]", parameters1).JsonDataAsync();
@@ -162,7 +163,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             {
                 return new DynamicResult() { Message = "Post not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
             }
-
+            var ImageUrlDelete = post.ImageUrl;
             // 
             SqlParameter[] parameters ={
                 new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = post.Id},
@@ -183,6 +184,10 @@ namespace WorkAppReactAPI.Data.SqlQuery
             };
 
             result = await _context.ExecuteDataTable("[dbo].[sp_UpdatePost]", parameters).JsonDataAsync();
+            if (result.Status == 1 && ImageUrlDelete.Length > 0)
+            {
+                System.IO.File.Delete(ImageUrlDelete);
+            }
             return result;
         }
 
@@ -209,7 +214,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     return new DynamicResult() { Message = "Post Not found Service", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
                 }
-                var checkWofS = await _context.WorkerOfServices.Include(x => x.Worker).FirstOrDefaultAsync(x => x.Worker.Id == user.Id && x.Id == service.Id);
+                var checkWofS = await _context.WorkerOfServices.Include(x => x.Worker).Include(x => x.Service).FirstOrDefaultAsync(x => x.Worker.Id == user.Id && x.Service.Id == service.Id);
                 if (checkWofS == null || checkWofS.isApproval != 1)
                 {
                     return new DynamicResult() { Message = "You can not apply this post", Data = null, Totalrow = 0, Type = "Error", Status = 2 };

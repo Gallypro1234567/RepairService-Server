@@ -7,7 +7,7 @@ namespace WorkAppReactAPI.Dtos
 {
     public class Query
     {
-        public string Code { get; set; }
+        public string Code { get; set; } 
         public int Start { get; set; }
         public int Length { get; set; }
         public int Order { get; set; }

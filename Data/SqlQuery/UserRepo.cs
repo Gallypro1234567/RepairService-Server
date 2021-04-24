@@ -127,6 +127,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     return new DynamicResult() { Message = "Account not found", Data = null, Totalrow = 0, Type = "Error-Validation", Status = 2 };
 
                 }
+                var ImageUrlDelete = user.ImageUrl;
                 if (user.Phone != Auth.Phone && user.Password != Encryptor.Encrypt(Auth.Password))
                 {
                     return new DynamicResult() { Message = "You can't modify  orther user's profile", Data = null, Totalrow = 0, Type = "Error-UnAuthorized", Status = 2 };
@@ -160,6 +161,9 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@ImageUrlOfCMND", SqlDbType.VarChar) { Value = model.ImageUrlOfCMND == null ?  DBNull.Value :  model.ImageUrlOfCMND}
                 };
                 result = await _context.ExecuteDataTable("[dbo].[sp_UpdateWorker]", parameters2).JsonDataAsync();
+                if(result.Status == 1 && ImageUrlDelete.Length > 0){
+                     System.IO.File.Delete(ImageUrlDelete);
+                }
                 return result;
             }
             catch (Exception ex)

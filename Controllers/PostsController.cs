@@ -145,8 +145,7 @@ namespace WorkAppReactAPI.Controllers
         public async Task<ActionResult<DynamicResult>> updatePostbyWorker([FromQuery] string code, [FromHeader] HeaderParamaters header)
         {
 
-            var result = new DynamicResult();
-
+            var result = new DynamicResult(); 
             var handler = new JwtSecurityTokenHandler();
             var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
             var jsonToken = handler.ReadToken(tokenStr);

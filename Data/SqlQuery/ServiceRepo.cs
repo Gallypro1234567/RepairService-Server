@@ -109,6 +109,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 }
 
                 var service = _context.Services.FirstOrDefault(x => x.Code == code);
+                var ImageUrlDelete = service.ImageUrl;
                 if (service == null)
                 {
                     var failure = new DynamicResult() { Message = "Not found service", Type = "Error", Status = 2, Totalrow = 0 };
@@ -122,7 +123,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 };
                 var result = await _context.ExecuteDataTable("[dbo].[sp_UpdateService]", parameters).JsonDataAsync();
                 if(result.Status == 1 && service.ImageUrl.Length > 0){
-                     System.IO.File.Delete(service.ImageUrl);
+                     System.IO.File.Delete(ImageUrlDelete);
                 }
                 return result;
             }
