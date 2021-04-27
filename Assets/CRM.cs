@@ -27,12 +27,27 @@ namespace WorkAppReactAPI.Assets
                     file.CopyTo(filetream);
                     filetream.Flush();
                     var link =folderpath + fileName;
-                    return link.Replace(@"\", "/"); ;
+                    return link.Replace(@"\", "/"); 
                 }
             }
             catch (Exception ex)
             {
                 return ex.Message;
+            }
+
+        }
+        public static bool DeleteImage(this IWebHostEnvironment _hostingEnvironment,  string link)
+        {
+            try
+            {   
+
+                string path  = link.Replace(@"\", "/");
+                 System.IO.File.Delete(_hostingEnvironment.WebRootPath + path);
+                 return true; 
+            }
+            catch 
+            {
+                return false;
             }
 
         }

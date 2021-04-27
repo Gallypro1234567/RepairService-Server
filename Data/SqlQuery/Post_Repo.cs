@@ -184,7 +184,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             };
 
             result = await _context.ExecuteDataTable("[dbo].[sp_UpdatePost]", parameters).JsonDataAsync();
-            if (result.Status == 1 && ImageUrlDelete.Length > 0)
+            if (result.Status == 1 && ImageUrlDelete != null)
             {
                 System.IO.File.Delete(ImageUrlDelete);
             }

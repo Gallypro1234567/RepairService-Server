@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WorkAppReactAPI.Assets;
@@ -16,13 +17,14 @@ namespace WorkAppReactAPI.Data.SqlQuery
     public class UserRepo : IUserRepo
     {
 
-
+        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly WorkerServiceContext _context;
         private readonly IAuthorRepo _author;
-        public UserRepo(WorkerServiceContext context, IAuthorRepo author)
+        public UserRepo(WorkerServiceContext context, IAuthorRepo author, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _author = author;
+            _hostingEnvironment = webHostEnvironment;
         }
 
         public Task<DynamicResult> Login(UserLogin model)
@@ -161,8 +163,8 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@ImageUrlOfCMND", SqlDbType.VarChar) { Value = model.ImageUrlOfCMND == null ?  DBNull.Value :  model.ImageUrlOfCMND}
                 };
                 result = await _context.ExecuteDataTable("[dbo].[sp_UpdateWorker]", parameters2).JsonDataAsync();
-                if(result.Status == 1 && ImageUrlDelete.Length > 0){
-                     System.IO.File.Delete(ImageUrlDelete);
+                if(result.Status == 1 && ImageUrlDelete != null){
+                    _hostingEnvironment.DeleteImage(ImageUrlDelete);
                 }
                 return result;
             }

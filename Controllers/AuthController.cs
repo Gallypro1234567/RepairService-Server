@@ -154,29 +154,45 @@ namespace WorkAppReactAPI.Controllers
         [Route("changepassword")]
         public async Task<IActionResult> ChangePassword([FromBody] UserChangePassword user)
         {
-            if (ModelState.IsValid)
-            {
-                var auth = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString();
-                var handler = new JwtSecurityTokenHandler();
-                var tokenStr = auth.Substring("Bearer ".Length).Trim();
-                var jsonToken = handler.ReadToken(tokenStr);
-                var tokenS = jsonToken as JwtSecurityToken;
 
-                var tokenModel = new UserLogin()
-                {
-                    Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
-                    Password = tokenS.Claims.First(claim => claim.Type == "Password").Value
-                };
-                var result = await _users.ChangePassword(user, tokenModel);
-                return Ok(result);
-            }
-            return BadRequest(new RegistrationResponse
+            try
             {
-                Errors = new List<string>(){
+                if (ModelState.IsValid)
+                {
+                    var auth = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString();
+                    var handler = new JwtSecurityTokenHandler();
+                    var tokenStr = auth.Substring("Bearer ".Length).Trim();
+                    var jsonToken = handler.ReadToken(tokenStr);
+                    var tokenS = jsonToken as JwtSecurityToken;
+
+                    var tokenModel = new UserLogin()
+                    {
+                        Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                        Password = tokenS.Claims.First(claim => claim.Type == "Password").Value
+                    };
+                    var result = await _users.ChangePassword(user, tokenModel);
+                    return Ok(result);
+                }
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
                             "Invalid payload"
                         },
-                Success = false
-            });
+                    Success = false
+                });
+            }
+            catch (System.Exception ex)
+            {
+
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
+                            ex.Message
+                        },
+                    Success = false
+                });
+            }
+
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -184,11 +200,75 @@ namespace WorkAppReactAPI.Controllers
         [Route("update")]
         public async Task<IActionResult> Update([FromQuery] string phone, [FromForm] UserUpdate user, [FromHeader] HeaderParamaters paramaters)
         {
-            if (ModelState.IsValid)
+            try
+            {
+                if (ModelState.IsValid)
+                {
+
+                    var handler = new JwtSecurityTokenHandler();
+                    var tokenStr = paramaters.Authorization.Substring("Bearer ".Length).Trim();
+                    var jsonToken = handler.ReadToken(tokenStr);
+                    var tokenS = jsonToken as JwtSecurityToken;
+
+                    var tokenModel = new UserLogin()
+                    {
+                        Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                        Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                        isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                    };
+                    var file = user.File;
+
+                    if (file != null)
+                    {
+                        var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
+                        if (path.Length == 0)
+                        {
+                            return BadRequest(new DynamicResult()
+                            {
+                                Message = "File không hợp lệ",
+                                Status = 1
+                            });
+                        }
+                        user.ImageUrl = path;
+                    }
+
+                    var result = await _users.UpdateInformation(phone, user, tokenModel);
+                    if (file != null && result.Status != 1)
+                    { 
+                        _hostingEnvironment.DeleteImage(user.ImageUrl);
+                    }
+                    return Ok(result);
+                }
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
+                            "Invalid payload"
+                        },
+                    Success = false
+                });
+            }
+            catch (System.Exception ex)
             {
 
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
+                            ex.Message
+                        },
+                    Success = false
+                });
+            }
+
+        }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet]
+        [Route("detail")]
+        public async Task<IActionResult> Detail([FromHeader] HeaderParamaters header)
+        {
+            try
+            {
                 var handler = new JwtSecurityTokenHandler();
-                var tokenStr = paramaters.Authorization.Substring("Bearer ".Length).Trim();
+                var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
                 var jsonToken = handler.ReadToken(tokenStr);
                 var tokenS = jsonToken as JwtSecurityToken;
 
@@ -198,56 +278,21 @@ namespace WorkAppReactAPI.Controllers
                     Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
                     isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
                 };
-                var file = user.File;
-
-                if (file != null)
-                {
-                    var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
-                    if (path.Length == 0)
-                    {
-                        return BadRequest(new DynamicResult()
-                        {
-                            Message = "File không hợp lệ",
-                            Status = 1
-                        });
-                    }
-                    user.ImageUrl = path;
-                }
-
-                var result = await _users.UpdateInformation(phone, user, tokenModel);
-                if (file != null && result.Status != 1)
-                {
-                    System.IO.File.Delete(user.ImageUrl);
-                }
+                var result = await _users.Detail(tokenModel);
                 return Ok(result);
             }
-            return BadRequest(new RegistrationResponse
+            catch (System.Exception ex)
             {
-                Errors = new List<string>(){
-                            "Invalid payload"
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
+                            ex.Message
                         },
-                Success = false
-            });
-        }
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpGet]
-        [Route("detail")]
-        public async Task<IActionResult> Detail([FromHeader] HeaderParamaters header)
-        {
+                    Success = false
+                });
 
-            var handler = new JwtSecurityTokenHandler();
-            var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
-            var jsonToken = handler.ReadToken(tokenStr);
-            var tokenS = jsonToken as JwtSecurityToken;
+            }
 
-            var tokenModel = new UserLogin()
-            {
-                Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
-                Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
-                isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
-            };
-            var result = await _users.Detail(tokenModel);
-            return Ok(result);
         }
         private string GenerateJwtToken(UserLogin user)
         {

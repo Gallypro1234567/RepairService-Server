@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ using WorkAppReactAPI.Data.Interface;
 using WorkAppReactAPI.Dtos;
 using WorkAppReactAPI.Dtos.Requests;
 using WorkAppReactAPI.Models;
-
+using WorkAppReactAPI.Models.Responses;
 
 namespace WorkAppReactAPI.Controllers
 {
@@ -44,7 +45,7 @@ namespace WorkAppReactAPI.Controllers
         [HttpGet("{phone}")]
         public async Task<ActionResult<DynamicResult>> getWorkerOfServicesDetail(string phone, [FromQuery] Query model)
         {
-            var result = await _workerrepository.GetWorkerOfServicesByUser(phone,model);
+            var result = await _workerrepository.GetWorkerOfServicesByUser(phone, model);
             return Ok(result);
         }
         [Authorize]
@@ -52,21 +53,37 @@ namespace WorkAppReactAPI.Controllers
         [Route("register")]
         public async Task<ActionResult<DynamicResult>> Register([FromForm] WorkerOfServicesUpdate model, [FromHeader] HeaderParamaters header)
         {
-            var result = new DynamicResult();
-            var handler = new JwtSecurityTokenHandler();
-            var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
-            var jsonToken = handler.ReadToken(tokenStr);
-            var tokenS = jsonToken as JwtSecurityToken;
-
-            var auth = new UserLogin()
+            try
             {
-                Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
-                Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
-                isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
-                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
-            };
-            result = await _workerrepository.RegisterWorkerOfServices(model, auth);
-            return Ok(result);
+                var result = new DynamicResult();
+                var handler = new JwtSecurityTokenHandler();
+                var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
+                var jsonToken = handler.ReadToken(tokenStr);
+                var tokenS = jsonToken as JwtSecurityToken;
+
+                var auth = new UserLogin()
+                {
+                    Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                    Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                    isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                    Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
+                };
+                result = await _workerrepository.RegisterWorkerOfServices(model, auth);
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+
+
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
+                            ex.Message
+                        },
+                    Success = false
+                });
+            }
+
         }
 
 
@@ -75,24 +92,39 @@ namespace WorkAppReactAPI.Controllers
         [Route("Vetification")]
         public async Task<ActionResult<DynamicResult>> Vetification([FromForm] WorkerOfServicesUpdate model, [FromHeader] HeaderParamaters header)
         {
-
-            var result = new DynamicResult();
-
-            var handler = new JwtSecurityTokenHandler();
-            var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
-            var jsonToken = handler.ReadToken(tokenStr);
-            var tokenS = jsonToken as JwtSecurityToken;
-
-            var auth = new UserLogin()
+            try
             {
-                Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
-                Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
-                isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
-                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
-            };
-            result = await _workerrepository.VetificationWorkerOfServices(model, auth);
+                var result = new DynamicResult();
 
-            return Ok(result);
+                var handler = new JwtSecurityTokenHandler();
+                var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
+                var jsonToken = handler.ReadToken(tokenStr);
+                var tokenS = jsonToken as JwtSecurityToken;
+
+                var auth = new UserLogin()
+                {
+                    Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                    Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                    isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                    Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
+                };
+                result = await _workerrepository.VetificationWorkerOfServices(model, auth);
+
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
+                            ex.Message
+                        },
+                    Success = false
+                });
+
+
+            }
         }
 
         [Authorize]
@@ -100,23 +132,37 @@ namespace WorkAppReactAPI.Controllers
         [Route("delete")]
         public async Task<ActionResult<DynamicResult>> deletePostById([FromQuery] string code, [FromHeader] HeaderParamaters header)
         {
-
-            var result = new DynamicResult();
-
-            var handler = new JwtSecurityTokenHandler();
-            var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
-            var jsonToken = handler.ReadToken(tokenStr);
-            var tokenS = jsonToken as JwtSecurityToken;
-
-            var auth = new UserLogin()
+            try
             {
-                Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
-                Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
-                isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
-                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
-            };
-            result = await _workerrepository.DeleteWorkerOfServices(code, auth);
-            return Ok(result);
+
+                var result = new DynamicResult();
+
+                var handler = new JwtSecurityTokenHandler();
+                var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
+                var jsonToken = handler.ReadToken(tokenStr);
+                var tokenS = jsonToken as JwtSecurityToken;
+
+                var auth = new UserLogin()
+                {
+                    Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                    Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                    isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                    Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
+                };
+                result = await _workerrepository.DeleteWorkerOfServices(code, auth);
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
+                            ex.Message
+                        },
+                    Success = false
+                });
+            }
         }
     }
 }

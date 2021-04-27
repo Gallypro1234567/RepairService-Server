@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WorkAppReactAPI.Dtos;
+using Microsoft.AspNetCore.Hosting;
 
 namespace WorkAppReactAPI.Data.SqlQuery
 {
@@ -16,9 +17,11 @@ namespace WorkAppReactAPI.Data.SqlQuery
     {
 
         private readonly WorkerServiceContext _context;
-        public ServiceRepo(WorkerServiceContext context)
+        private readonly IWebHostEnvironment _hostingEnvironment;
+         public ServiceRepo(WorkerServiceContext context,IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public async Task<DynamicResult> getListService(Query model)
@@ -27,7 +30,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
                     new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
                     new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
-                    
+
                 };
             var result = await _context.ExecuteDataTable("[dbo].[sp_GetServices]", parameters).JsonDataAsync();
             return result;
@@ -36,13 +39,14 @@ namespace WorkAppReactAPI.Data.SqlQuery
         {
             try
             {
-                var user = _context.Users.FirstOrDefault(x => x.Phone == auth.Phone && x.Password ==  Encryptor.Encrypt(auth.Password));
+                var user = _context.Users.FirstOrDefault(x => x.Phone == auth.Phone && x.Password == Encryptor.Encrypt(auth.Password));
                 if (user == null)
                 {
                     var failure = new DynamicResult() { Message = "Not found user", Type = "Error", Status = 2, Totalrow = 0 };
                     return failure;
                 }
-                if(user.Role > 0){
+                if (user.Role > 0)
+                {
                     var failure = new DynamicResult() { Message = "You can't not add service", Type = "Error", Status = 2, Totalrow = 0 };
                     return failure;
                 }
@@ -97,13 +101,14 @@ namespace WorkAppReactAPI.Data.SqlQuery
         {
             try
             {
-                var user = _context.Users.FirstOrDefault(x => x.Phone == auth.Phone && x.Password ==  Encryptor.Encrypt(auth.Password));
+                var user = _context.Users.FirstOrDefault(x => x.Phone == auth.Phone && x.Password == Encryptor.Encrypt(auth.Password));
                 if (user == null)
                 {
                     var failure = new DynamicResult() { Message = "Not found user", Type = "Error", Status = 2, Totalrow = 0 };
                     return failure;
                 }
-                if(user.Role > 0){
+                if (user.Role > 0)
+                {
                     var failure = new DynamicResult() { Message = "You can't not update service", Type = "Error", Status = 2, Totalrow = 0 };
                     return failure;
                 }
@@ -122,8 +127,9 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@Description", SqlDbType.VarChar) { Value = model.Description == null ?"" : model.Description },
                 };
                 var result = await _context.ExecuteDataTable("[dbo].[sp_UpdateService]", parameters).JsonDataAsync();
-                if(result.Status == 1 && service.ImageUrl.Length > 0){
-                     System.IO.File.Delete(ImageUrlDelete);
+                if (result.Status == 1 && service.ImageUrl != null)
+                { 
+                    _hostingEnvironment.DeleteImage(ImageUrlDelete);
                 }
                 return result;
             }
@@ -137,7 +143,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 };
             }
         }
-        public async Task<DynamicResult> DeleteService(string code,  UserLogin auth)
+        public async Task<DynamicResult> DeleteService(string code, UserLogin auth)
         {
             try
             {
@@ -164,6 +170,6 @@ namespace WorkAppReactAPI.Data.SqlQuery
             }
         }
 
-    
+
     }
 }
