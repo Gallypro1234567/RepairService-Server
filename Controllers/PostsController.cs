@@ -8,11 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using WorkAppReactAPI.Assets;
-using WorkAppReactAPI.Configuration;
-using WorkAppReactAPI.Data;
+using WorkAppReactAPI.Configuration; 
 using WorkAppReactAPI.Data.Interface;
-using WorkAppReactAPI.Dtos.Requests;
-using WorkAppReactAPI.Models;
+using WorkAppReactAPI.Dtos.Requests; 
 using WorkAppReactAPI.Models.Responses;
 
 namespace WorkAppReactAPI.Controllers
@@ -42,6 +40,14 @@ namespace WorkAppReactAPI.Controllers
             return Ok(result);
         }
         [Authorize]
+        [HttpGet("detail/{postcode}")]
+        public async Task<ActionResult<DynamicResult>> getPostby(string postcode)
+        {
+
+            var result = await _repository.GetPostDetail(postcode);
+            return Ok(result);
+        }
+        [Authorize]
         [HttpGet]
         [Route("Recently")]
         public async Task<ActionResult<DynamicResult>> getRecentlyPosts([FromQuery] PostGet model)
@@ -67,9 +73,10 @@ namespace WorkAppReactAPI.Controllers
         {
             try
             {
-                var file = model.Image;
+                var formFiles = model.Image;
                 var result = new DynamicResult();
-                if (file != null)
+                var list = new List<String>();
+                foreach (var file in formFiles)
                 {
                     var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
                     if (path.Length == 0)
@@ -80,9 +87,11 @@ namespace WorkAppReactAPI.Controllers
                             Status = 1
                         });
                     }
-                    model.ImageUrl = path;
+                    list.Add(path);
+
                 }
 
+                model.ImageUrl = String.Join(",", list.ToArray());
                 var handler = new JwtSecurityTokenHandler();
                 var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
                 var jsonToken = handler.ReadToken(tokenStr);
@@ -96,9 +105,13 @@ namespace WorkAppReactAPI.Controllers
                     Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
                 };
                 result = await _repository.InserPost(model, auth);
-                if (file != null && result.Status != 1)
+                if (formFiles != null && result.Status != 1)
                 {
-                    System.IO.File.Delete(model.ImageUrl);
+                    foreach (var imageUrl in list)
+                    {
+                        System.IO.File.Delete(imageUrl);
+                    }
+
                 }
                 return Ok(result);
             }
@@ -123,9 +136,10 @@ namespace WorkAppReactAPI.Controllers
         {
             try
             {
-                var file = model.Image;
+                var formFiles = model.Image;
                 var result = new DynamicResult();
-                if (file != null)
+                var list = new List<String>();
+                foreach (var file in formFiles)
                 {
                     var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
                     if (path.Length == 0)
@@ -136,9 +150,11 @@ namespace WorkAppReactAPI.Controllers
                             Status = 1
                         });
                     }
-                    model.ImageUrl = path;
+                    list.Add(path);
+
                 }
 
+                model.ImageUrl = String.Join(",", list.ToArray());
                 var handler = new JwtSecurityTokenHandler();
                 var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
                 var jsonToken = handler.ReadToken(tokenStr);
@@ -152,9 +168,13 @@ namespace WorkAppReactAPI.Controllers
                     Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
                 };
                 result = await _repository.UpdatePostByCustomer(code, model, auth);
-                if (file != null && result.Status != 1)
+                if (formFiles != null && result.Status != 1)
                 {
-                    System.IO.File.Delete(model.ImageUrl);
+                    foreach (var imageUrl in list)
+                    {
+                        System.IO.File.Delete(imageUrl);
+                    }
+
                 }
                 return Ok(result);
             }
