@@ -35,6 +35,16 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var result = await _context.ExecuteDataTable("[dbo].[sp_GetServices]", parameters).JsonDataAsync();
             return result;
         }
+         public async Task<DynamicResult> getServiceDetail(string code)
+        {
+            SqlParameter[] parameters ={
+                    new SqlParameter("@Code", SqlDbType.VarChar) { Value = code},
+                   
+
+                };
+            var result = await _context.ExecuteDataTable("[dbo].[sp_GetServiceDetail]", parameters).JsonDataAsync();
+            return result;
+        }
         public async Task<DynamicResult> AddService(ServiceUpdate model, UserLogin auth)
         {
             try

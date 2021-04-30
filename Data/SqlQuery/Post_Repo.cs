@@ -30,6 +30,15 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var result = await _context.ExecuteDataTable("[dbo].[sp_GetAllPosts]", parameters).JsonDataAsync();
             return result;
         }
+        public async Task<DynamicResult> GetPostDetail(string Code)
+        {
+            SqlParameter[] parameters ={
+                new SqlParameter("@Code", SqlDbType.VarChar) { Value =   Code},
+
+            };
+            var result = await _context.ExecuteDataTable("[dbo].[sp_GetPostDetailbyCode]", parameters).JsonDataAsync();
+            return result;
+        }
         public async Task<DynamicResult> GetRecentlyPosts(PostGet model)
         {
             SqlParameter[] parameters ={
@@ -68,7 +77,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
                     new SqlParameter("@status", SqlDbType.Int) { Value =  model.Status == null ? DBNull.Value : model.Status},
                 };
-                
+
             if (isCustomer != null)
             {
                 result = await _context.ExecuteDataTable("[dbo].[sp_GetAllPostsByCustomer]", parameters1).JsonDataAsync();
@@ -133,7 +142,6 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 //
                 new SqlParameter("@status", SqlDbType.Int) { Value = model.status},
             };
-
             result = await _context.ExecuteDataTable("[dbo].[sp_InsertPost]", parameters).JsonDataAsync();
             return result;
         }
@@ -186,7 +194,12 @@ namespace WorkAppReactAPI.Data.SqlQuery
             result = await _context.ExecuteDataTable("[dbo].[sp_UpdatePost]", parameters).JsonDataAsync();
             if (result.Status == 1 && ImageUrlDelete != null)
             {
-                System.IO.File.Delete(ImageUrlDelete);
+                String[] imageurls = ImageUrlDelete.Split(new char[] { ',' });
+                foreach (var item in imageurls)
+                {
+                    System.IO.File.Delete(item);
+                }
+
             }
             return result;
         }

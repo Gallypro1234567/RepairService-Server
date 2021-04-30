@@ -10,6 +10,7 @@ namespace WorkAppReactAPI.Data.Interface
     public interface IServiceRepo
     {
         Task<DynamicResult> getListService(Query model);
+        Task<DynamicResult> getServiceDetail(string code);
 
         Task<DynamicResult> AddService(ServiceUpdate model,UserLogin auth);
 

@@ -40,9 +40,16 @@ namespace WorkAppReactAPI.Controllers
         {
 
             var result = await _repository.getListService(model);
-            return result;
+            return Ok(result);
         }
+        [Authorize]
+        [HttpGet("{code}")]
+        public async Task<ActionResult<DynamicResult>> getAllService(string code)
+        {
 
+            var result = await _repository.getServiceDetail(code);
+            return Ok(result);
+        }
         [Authorize]
         [HttpPost]
         [Route("add")]
