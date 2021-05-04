@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using WorkAppReactAPI.Assets;
-using WorkAppReactAPI.Configuration; 
+using WorkAppReactAPI.Configuration;
 using WorkAppReactAPI.Data.Interface;
-using WorkAppReactAPI.Dtos.Requests; 
+using WorkAppReactAPI.Dtos.Requests;
 using WorkAppReactAPI.Models.Responses;
 
 namespace WorkAppReactAPI.Controllers
@@ -76,20 +76,21 @@ namespace WorkAppReactAPI.Controllers
                 var formFiles = model.Image;
                 var result = new DynamicResult();
                 var list = new List<String>();
-                foreach (var file in formFiles)
-                {
-                    var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
-                    if (path.Length == 0)
+                if (model.Image != null)
+                    foreach (var file in formFiles)
                     {
-                        return BadRequest(new DynamicResult()
+                        var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
+                        if (path.Length == 0)
                         {
-                            Message = "File không hợp lệ",
-                            Status = 1
-                        });
-                    }
-                    list.Add(path);
+                            return BadRequest(new DynamicResult()
+                            {
+                                Message = "File không hợp lệ",
+                                Status = 1
+                            });
+                        }
+                        list.Add(path);
 
-                }
+                    }
 
                 model.ImageUrl = String.Join(",", list.ToArray());
                 var handler = new JwtSecurityTokenHandler();
@@ -109,7 +110,7 @@ namespace WorkAppReactAPI.Controllers
                 {
                     foreach (var imageUrl in list)
                     {
-                        System.IO.File.Delete(imageUrl);
+                        _hostingEnvironment.DeleteImage(imageUrl);
                     }
 
                 }
@@ -139,20 +140,21 @@ namespace WorkAppReactAPI.Controllers
                 var formFiles = model.Image;
                 var result = new DynamicResult();
                 var list = new List<String>();
-                foreach (var file in formFiles)
-                {
-                    var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
-                    if (path.Length == 0)
+                if (model.Image != null)
+                    foreach (var file in formFiles)
                     {
-                        return BadRequest(new DynamicResult()
+                        var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
+                        if (path.Length == 0)
                         {
-                            Message = "File không hợp lệ",
-                            Status = 1
-                        });
-                    }
-                    list.Add(path);
+                            return BadRequest(new DynamicResult()
+                            {
+                                Message = "File không hợp lệ",
+                                Status = 1
+                            });
+                        }
+                        list.Add(path);
 
-                }
+                    }
 
                 model.ImageUrl = String.Join(",", list.ToArray());
                 var handler = new JwtSecurityTokenHandler();
@@ -172,7 +174,7 @@ namespace WorkAppReactAPI.Controllers
                 {
                     foreach (var imageUrl in list)
                     {
-                        System.IO.File.Delete(imageUrl);
+                        _hostingEnvironment.DeleteImage(imageUrl);
                     }
 
                 }

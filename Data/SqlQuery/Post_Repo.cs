@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WorkAppReactAPI.Assets;
@@ -14,10 +15,13 @@ namespace WorkAppReactAPI.Data.SqlQuery
     public class PostRepo : IPostRepo
     {
         private readonly WorkerServiceContext _context;
-        public PostRepo(WorkerServiceContext context)
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        public PostRepo(WorkerServiceContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _hostingEnvironment = webHostEnvironment;
         }
+
         public async Task<DynamicResult> GetPost(PostGet model)
         {
             SqlParameter[] parameters ={
@@ -136,6 +140,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 //
                 new SqlParameter("@Title", SqlDbType.NVarChar) { Value = model.Title},
                 new SqlParameter("@Position", SqlDbType.VarChar) { Value = model.Position == null ? DBNull.Value: model.Position},
+                new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.Description == null ? DBNull.Value : model.Description},
                 new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address  == null ? DBNull.Value: model.Address},
                 new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl == null ? DBNull.Value: model.ImageUrl},
                 new SqlParameter("@FinishAt", SqlDbType.DateTime) { Value = model.FinishAt},
@@ -184,6 +189,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 //
                 new SqlParameter("@Title", SqlDbType.NVarChar) { Value = model.Title},
                 new SqlParameter("@Position", SqlDbType.VarChar) { Value = model.Position == null ? DBNull.Value: model.Position},
+                new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.Description == null ? DBNull.Value : model.Description},
                 new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address  == null ? DBNull.Value: model.Address},
                 new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl == null ? DBNull.Value: model.ImageUrl},
                 new SqlParameter("@FinishAt", SqlDbType.DateTime) { Value = model.FinishAt},
@@ -197,7 +203,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 String[] imageurls = ImageUrlDelete.Split(new char[] { ',' });
                 foreach (var item in imageurls)
                 {
-                    System.IO.File.Delete(item);
+                    _hostingEnvironment.DeleteImage(item);
                 }
 
             }
@@ -246,6 +252,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 //
                 new SqlParameter("@Title", SqlDbType.NVarChar) { Value = post.Title},
                 new SqlParameter("@Position", SqlDbType.VarChar) { Value = post.Position == null ? DBNull.Value : post.Position},
+                new SqlParameter("@Description", SqlDbType.NVarChar) { Value = post.Description == null ? DBNull.Value : post.Description},
                 new SqlParameter("@Address", SqlDbType.NVarChar) { Value = post.Address == null ? DBNull.Value : post.Address},
                 new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = post.ImageUrl == null ? DBNull.Value : post.ImageUrl},
                 new SqlParameter("@FinishAt", SqlDbType.DateTime) { Value = post.FinishAt},
@@ -290,11 +297,20 @@ namespace WorkAppReactAPI.Data.SqlQuery
             {
                 return new DynamicResult() { Message = "You can't not delete post when it is processing", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
             }
-
+            var ImageUrlDelete = checkPost.ImageUrl;
             SqlParameter[] parameters ={
                 new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = checkPost.Id}
             };
             var result = await _context.ExecuteDataTable("[dbo].[sp_DeletePost]", parameters).JsonDataAsync();
+            if (result.Status == 1 && ImageUrlDelete != null)
+            {
+                String[] imageurls = ImageUrlDelete.Split(new char[] { ',' });
+                foreach (var item in imageurls)
+                {
+                    _hostingEnvironment.DeleteImage(item);
+                }
+
+            }
             return result;
         }
 

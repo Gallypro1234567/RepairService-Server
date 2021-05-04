@@ -19,11 +19,10 @@ namespace WorkAppReactAPI.Data.SqlQuery
 
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly WorkerServiceContext _context;
-        private readonly IAuthorRepo _author;
-        public UserRepo(WorkerServiceContext context, IAuthorRepo author, IWebHostEnvironment webHostEnvironment)
+         
+        public UserRepo(WorkerServiceContext context,  IWebHostEnvironment webHostEnvironment)
         {
-            _context = context;
-            _author = author;
+            _context = context; 
             _hostingEnvironment = webHostEnvironment;
         }
 

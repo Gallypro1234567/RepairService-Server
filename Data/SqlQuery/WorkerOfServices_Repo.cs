@@ -173,7 +173,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             }
             SqlParameter[] parameters ={
 
-                new SqlParameter("@Id", SqlDbType.VarChar) { Value = workerservice.Id},
+                new SqlParameter("@Id", SqlDbType.UniqueIdentifier) { Value = workerservice.Id},
 
             };
 

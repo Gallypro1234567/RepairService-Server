@@ -29,8 +29,7 @@ namespace WorkAppReactAPI.Models
         public int Role { get; set; }
         public bool isOnline { get; set; }
         public virtual ICollection<Customer> Customers { get; set; }
-        public virtual ICollection<Worker> Workers { get; set; }
-        public virtual ICollection<UserRole> UserRoles { set; get; }
+        public virtual ICollection<Worker> Workers { get; set; } 
         public int Status { get; set; }  //  0: đã khóa, 1: đang kích hoạt
     }
 }

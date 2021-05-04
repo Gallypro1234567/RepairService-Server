@@ -3,47 +3,23 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkAppReactAPI.Data;
 
 namespace WorkAppReactAPI.Migrations
 {
     [DbContext(typeof(WorkerServiceContext))]
-    partial class WorkerServiceContextModelSnapshot : ModelSnapshot
+    [Migration("20210501161155_add_column_description_post")]
+    partial class add_column_description_post
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.4")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("WorkAppReactAPI.Models.ApplyToPost", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("AcceptAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PostCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("WorkerOfServiceCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ApplyToPosts");
-                });
 
             modelBuilder.Entity("WorkAppReactAPI.Models.Customer", b =>
                 {
@@ -209,6 +185,44 @@ namespace WorkAppReactAPI.Migrations
                     b.ToTable("PreferentialOfServices");
                 });
 
+            modelBuilder.Entity("WorkAppReactAPI.Models.Role", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FunctionCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<bool>("isDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isExport")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isImport")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isInsert")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isSearch")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isUpdate")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
             modelBuilder.Entity("WorkAppReactAPI.Models.Service", b =>
                 {
                     b.Property<Guid>("Id")
@@ -285,6 +299,30 @@ namespace WorkAppReactAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("WorkAppReactAPI.Models.UserRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("WorkAppReactAPI.Models.Worker", b =>
@@ -410,6 +448,21 @@ namespace WorkAppReactAPI.Migrations
                     b.Navigation("Service");
                 });
 
+            modelBuilder.Entity("WorkAppReactAPI.Models.UserRole", b =>
+                {
+                    b.HasOne("WorkAppReactAPI.Models.Role", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId");
+
+                    b.HasOne("WorkAppReactAPI.Models.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WorkAppReactAPI.Models.Worker", b =>
                 {
                     b.HasOne("WorkAppReactAPI.Models.User", "User")
@@ -457,6 +510,11 @@ namespace WorkAppReactAPI.Migrations
                     b.Navigation("PreferentialOfServices");
                 });
 
+            modelBuilder.Entity("WorkAppReactAPI.Models.Role", b =>
+                {
+                    b.Navigation("UserRoles");
+                });
+
             modelBuilder.Entity("WorkAppReactAPI.Models.Service", b =>
                 {
                     b.Navigation("Posts");
@@ -469,6 +527,8 @@ namespace WorkAppReactAPI.Migrations
             modelBuilder.Entity("WorkAppReactAPI.Models.User", b =>
                 {
                     b.Navigation("Customers");
+
+                    b.Navigation("UserRoles");
 
                     b.Navigation("Workers");
                 });

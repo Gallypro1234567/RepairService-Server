@@ -11,7 +11,8 @@ namespace WorkAppReactAPI.Models
         [Required]
         public string Code { set; get; }
         public string Title { set; get; }
-        public string Position { set; get; }  
+        public string Position { set; get; } 
+        public string Description  { set; get; } 
         public string Address { set; get; } 
         public string ImageUrl { set; get; } 
         [Required]
@@ -19,7 +20,7 @@ namespace WorkAppReactAPI.Models
         public DateTime FinishAt { set; get; } 
 
         [Required]
-        public int status { set; get; } // 0: khởi tạo, 1: worker booked, 2 đang thực hiện, 3: hoàn thành
+        public int status { set; get; } // 0: khởi tạo, 1: nhân viên apply, 2 chấp nhận  2 đang thực hiện, 3: hoàn thành
 
         [Required]
         public virtual Customer Customer { get; set; }

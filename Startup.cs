@@ -60,13 +60,13 @@ namespace WorkAppReactAPI
 
             services.AddHttpContextAccessor();
             // Add DI
-            services.AddScoped<IUserRepo, UserRepo>();
-            services.AddScoped<IAuthorRepo, AuthorRepo>();
+            services.AddScoped<IUserRepo, UserRepo>(); 
             services.AddScoped<IServiceRepo, ServiceRepo>();
             services.AddScoped<ICustomerRepo, CustomerRepo>(); 
             services.AddScoped<IWorkerRepo, WorkerRepo>(); 
          
             services.AddScoped<IPostRepo, PostRepo>();
+            services.AddScoped<IApplyToPostRepo, ApplyToPostRepo>();
             services.AddScoped<IPreferentialRepo, PreferentialRepo>();
             services.AddScoped<IWorkerOfServicesRepo, WorkerOfServicesRepo>();
 
