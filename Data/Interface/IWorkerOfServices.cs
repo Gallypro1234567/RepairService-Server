@@ -4,17 +4,18 @@ using Microsoft.AspNetCore.Http;
 using WorkAppReactAPI.Configuration;
 using WorkAppReactAPI.Dtos;
 using WorkAppReactAPI.Dtos.Requests;
- 
+
 
 namespace WorkAppReactAPI.Data.Interface
 {
     public interface IWorkerOfServicesRepo
     {
         Task<DynamicResult> GetallWorkerOfServices(Query model);
-        Task<DynamicResult> GetWorkerOfServicesByUser(string phone,Query model);
+        Task<DynamicResult> GetWorkerOfServicesDetailByCode(string phone, string code);
+        Task<DynamicResult> GetWorkerOfServicesByUser(string phone, Query model);
         Task<DynamicResult> RegisterWorkerOfServices(WorkerOfServicesUpdate model, UserLogin auth);  // insert
         Task<DynamicResult> VetificationWorkerOfServices(WorkerOfServicesUpdate model, UserLogin auth); // update
-       
+
         Task<DynamicResult> DeleteWorkerOfServices(string WorkerOfServiceCode, UserLogin auth);
     }
     public class WorkerOfServicesRequest

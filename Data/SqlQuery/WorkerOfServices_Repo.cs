@@ -42,7 +42,16 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var result = await _context.ExecuteDataTable("[dbo].[sp_GetWorkerOfServicesByUser]", parameters).JsonDataAsync();
             return result;
         }
-
+        public async Task<DynamicResult> GetWorkerOfServicesDetailByCode(string phone, string code)
+        {
+            SqlParameter[] parameters ={
+                new SqlParameter("@Phone", SqlDbType.NVarChar) { Value = phone},
+                new SqlParameter("@Code", SqlDbType.VarChar) { Value = code},
+                 
+            };
+            var result = await _context.ExecuteDataTable("[dbo].[sp_GetWorkerOfServicesDetailByCode]", parameters).JsonDataAsync();
+            return result;
+        }
         public async Task<DynamicResult> RegisterWorkerOfServices(WorkerOfServicesUpdate model, UserLogin auth)
         {
             var result = new DynamicResult();

@@ -49,6 +49,13 @@ namespace WorkAppReactAPI.Controllers
             return Ok(result);
         }
         [Authorize]
+        [HttpGet("{phone}/detail")]
+        public async Task<ActionResult<DynamicResult>> getWorkerOfServicesDetail(string phone, [FromQuery] String code)
+        {
+            var result = await _workerrepository.GetWorkerOfServicesDetailByCode(phone, code);
+            return Ok(result);
+        }
+        [Authorize]
         [HttpPost]
         [Route("register")]
         public async Task<ActionResult<DynamicResult>> Register([FromForm] WorkerOfServicesUpdate model, [FromHeader] HeaderParamaters header)

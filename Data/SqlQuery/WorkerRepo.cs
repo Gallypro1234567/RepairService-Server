@@ -34,7 +34,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
         public async Task<DynamicResult> GetWorkerByPhone(string phone)
         {
             SqlParameter[] parameters ={
-                new SqlParameter("@Phone", SqlDbType.UniqueIdentifier) { Value = phone.Trim()}
+                new SqlParameter("@Phone", SqlDbType.VarChar) { Value = phone.Trim()}
             };
             var result = await _context.ExecuteDataTable("[dbo].[sp_GetWorkerByPhone]", parameters).JsonDataAsync();
             return result;

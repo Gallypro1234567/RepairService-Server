@@ -30,10 +30,29 @@ namespace WorkAppReactAPI.Controllers
 
         }
 
+        [Authorize]
+        [HttpGet("checkby")]
+        public async Task<ActionResult<DynamicResult>> CheckApplyofPosts([FromQuery] string postcode, [FromHeader] HeaderParamaters header)
+        {
 
+            var handler = new JwtSecurityTokenHandler();
+            var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
+            var jsonToken = handler.ReadToken(tokenStr);
+            var tokenS = jsonToken as JwtSecurityToken;
+
+            var auth = new UserLogin()
+            {
+                Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
+            };
+            var result = await _repository.checkApplytoPostbyWorkerPhone(postcode, auth);
+            return Ok(result);
+        }
         [Authorize]
         [HttpGet("getbycustomer")]
-        public async Task<ActionResult<DynamicResult>> getApplyofPosts([FromQuery]string postcode)
+        public async Task<ActionResult<DynamicResult>> getApplyofPosts([FromQuery] string postcode)
         {
 
             var result = await _repository.getApplytoPostbyCode(postcode);
@@ -47,7 +66,7 @@ namespace WorkAppReactAPI.Controllers
             var result = await _repository.getApplytoPostbyWorkerPhone(phone);
             return Ok(result);
         }
-        
+
         [Authorize]
         [HttpPost]
 
@@ -56,9 +75,9 @@ namespace WorkAppReactAPI.Controllers
         {
             try
             {
-                
+
                 var result = new DynamicResult();
-                
+
                 var handler = new JwtSecurityTokenHandler();
                 var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
                 var jsonToken = handler.ReadToken(tokenStr);
@@ -71,7 +90,7 @@ namespace WorkAppReactAPI.Controllers
                     isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
                     Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
                 };
-                result = await _repository.AddApplytoPost(model, auth); 
+                result = await _repository.AddApplytoPost(model, auth);
                 return Ok(result);
             }
             catch (System.Exception ex)
@@ -95,9 +114,9 @@ namespace WorkAppReactAPI.Controllers
         {
             try
             {
-                
+
                 var result = new DynamicResult();
-                 
+
                 var handler = new JwtSecurityTokenHandler();
                 var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
                 var jsonToken = handler.ReadToken(tokenStr);
@@ -110,7 +129,12 @@ namespace WorkAppReactAPI.Controllers
                     isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
                     Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
                 };
-                result = await _repository.UpdateApplytoPost(model, auth); 
+                result = await _repository.UpdateApplytoPost(model, auth);
+                if (result.Status == 1)
+                {
+                    var result1 = await _repository.customerAcceptPostApply(model, auth); 
+                    return Ok(result1);
+                }
                 return Ok(result);
             }
             catch (System.Exception ex)
@@ -125,8 +149,8 @@ namespace WorkAppReactAPI.Controllers
                 });
             }
 
-        } 
-         
+        }
+
         [Authorize]
         [HttpPost]
         [Route("deletebyworker")]
