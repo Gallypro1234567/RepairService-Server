@@ -59,12 +59,13 @@ namespace WorkAppReactAPI
             // services.AddSingleton<IAuthorizationHandler, MyAuthorizationHandler>();
 
             services.AddHttpContextAccessor();
+            services.AddCors();
             // Add DI
-            services.AddScoped<IUserRepo, UserRepo>(); 
+            services.AddScoped<IUserRepo, UserRepo>();
             services.AddScoped<IServiceRepo, ServiceRepo>();
-            services.AddScoped<ICustomerRepo, CustomerRepo>(); 
-            services.AddScoped<IWorkerRepo, WorkerRepo>(); 
-         
+            services.AddScoped<ICustomerRepo, CustomerRepo>();
+            services.AddScoped<IWorkerRepo, WorkerRepo>();
+
             services.AddScoped<IPostRepo, PostRepo>();
             services.AddScoped<IApplyToPostRepo, ApplyToPostRepo>();
             services.AddScoped<IPreferentialRepo, PreferentialRepo>();
@@ -102,6 +103,11 @@ namespace WorkAppReactAPI
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+            app.UseCors(x => x
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .SetIsOriginAllowed(origin => true) // allow any origin
+                          .AllowCredentials()); // allow credentials
 
             app.UseAuthentication();
             app.UseRouting();

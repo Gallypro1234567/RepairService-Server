@@ -129,10 +129,10 @@ namespace WorkAppReactAPI.Controllers
                     isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
                     Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
                 };
-                result = await _repository.UpdateApplytoPost(model, auth);
+                result = await _repository.customerAcceptPostApply(model, auth);
                 if (result.Status == 1)
                 {
-                    var result1 = await _repository.customerAcceptPostApply(model, auth); 
+                    var result1 = await _repository.UpdateApplytoPost(model, auth); 
                     return Ok(result1);
                 }
                 return Ok(result);
