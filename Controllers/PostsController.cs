@@ -47,6 +47,14 @@ namespace WorkAppReactAPI.Controllers
             var result = await _repository.GetPostDetail(postcode);
             return Ok(result);
         }
+         [Authorize]
+        [HttpGet("getdetailfinishby")]
+        public async Task<ActionResult<DynamicResult>> getPostDetailFeedback([FromQuery]string postcode)
+        {
+
+            var result = await _repository.GetPostDetailFeeback(postcode);
+            return Ok(result);
+        }
         [Authorize]
         [HttpGet]
         [Route("Recently")]

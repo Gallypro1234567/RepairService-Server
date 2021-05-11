@@ -1,20 +1,19 @@
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace WorkAppReactAPI.Models
 {
-    public class Feelback
+    public class Feedback
     {
 
         [Key]
         public Guid Id { set; get; }
-
-        [Required] 
         public string Code { set; get; }
-
-        public virtual ICollection<WorkerOfService> WorkerOfServices {set;get;}
-
+        public string WorkerOfServiceCode { set; get; }
+        public string PostCode { set; get; }
+        public string Description { set; get; }
+        public int PointRating { set; get; }
+        public DateTime? CreateAt { set; get; }
     }
 }

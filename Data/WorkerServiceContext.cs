@@ -13,7 +13,7 @@ namespace WorkAppReactAPI.Data
         public DbSet<User> Users { set; get; }
         public DbSet<Customer> Customers { set; get; }
         public DbSet<Worker> Workers { set; get; }
-        public DbSet<Feelback> Feelbacks { set; get; }
+        public DbSet<Feedback> Feedbacks { set; get; }
         public DbSet<HistoryAdress> HistoryAdress { set; get; }
         public DbSet<Preferential> Preferentials { set; get; }
         public DbSet<Service> Services { set; get; }

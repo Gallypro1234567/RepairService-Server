@@ -70,7 +70,7 @@ namespace WorkAppReactAPI
             services.AddScoped<IApplyToPostRepo, ApplyToPostRepo>();
             services.AddScoped<IPreferentialRepo, PreferentialRepo>();
             services.AddScoped<IWorkerOfServicesRepo, WorkerOfServicesRepo>();
-
+            services.AddScoped<IFeedBackRepo, FeedBackRepo>();
 
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>

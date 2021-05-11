@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkAppReactAPI.Data;
 
 namespace WorkAppReactAPI.Migrations
 {
     [DbContext(typeof(WorkerServiceContext))]
-    partial class WorkerServiceContextModelSnapshot : ModelSnapshot
+    [Migration("20210511181548_update_tbl_feedbacks_2")]
+    partial class update_tbl_feedbacks_2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

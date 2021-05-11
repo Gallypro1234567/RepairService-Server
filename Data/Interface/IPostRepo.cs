@@ -11,6 +11,7 @@ namespace WorkAppReactAPI.Data.Interface
     {
         Task<DynamicResult> GetPost(PostGet model);
         Task<DynamicResult> GetPostDetail(string Code);
+        Task<DynamicResult> GetPostDetailFeeback(string postCode);
         Task<DynamicResult> GetRecentlyPosts(PostGet model);
         Task<DynamicResult> GetPostByPhone(string phone, PostGet model);
         Task<DynamicResult> InserPost(PostUpdate model, UserLogin auth);

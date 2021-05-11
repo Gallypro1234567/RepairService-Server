@@ -44,7 +44,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 return new DynamicResult() { Message = "Post not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
             }
-            var workerofservice = await _context.WorkerOfServices.Include(x => x.Worker.User).Include(x => x.Service).FirstOrDefaultAsync(x => x.Worker.User.Phone == auth.Phone);
+            var workerofservice = await _context.WorkerOfServices.Include(x => x.Worker.User).Include(x => x.Service).FirstOrDefaultAsync(x => x.Worker.User.Phone == auth.Phone && x.Service.Code == post.Service.Code);
             if (workerofservice == null)
             {
                 return new DynamicResult() { Message = "You can't apply post because service is not approval", Data = null, Totalrow = 0, Type = "Error-UnAuthorized", Status = 2 };
@@ -170,7 +170,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
 
                     new SqlParameter("@Id", SqlDbType.UniqueIdentifier) { Value = postofUser.Id},
                     new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value = wofs.Id},
-                    new SqlParameter("@Status", SqlDbType.Int) { Value = model.status},
+                    new SqlParameter("@Status", SqlDbType.Int) { Value = model.poststatus},
                 };
 
             var result = await _context.ExecuteDataTable("[dbo].[sp_UpdatePostByAccept]", parameters).JsonDataAsync();
@@ -179,7 +179,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
 
         public async Task<DynamicResult> DeleteApplytoPost(ApplyToPostUpdate model, UserLogin auth)
         {
-             
+
             var worker = await _context.Workers.Include(x => x.WorkerOfCategories).Include(x => x.User).FirstOrDefaultAsync(x => x.User.Phone == auth.Phone && x.User.Password == Encryptor.Encrypt(auth.Password));
             if (worker == null)
             {
@@ -201,19 +201,178 @@ namespace WorkAppReactAPI.Data.SqlQuery
             {
                 return new DynamicResult() { Message = " Apply not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
             }
+            if (applypost.Status == 2)
+            {
+                SqlParameter[] parameters1 ={
+                    new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = applypost.Id},
+                    new SqlParameter("@WorkerOfServiceCode", SqlDbType.VarChar) { Value = applypost.WorkerOfServiceCode},
+                    new SqlParameter("@PostCode", SqlDbType.VarChar) { Value = applypost.PostCode},
+                    new SqlParameter("@Status", SqlDbType.Int) { Value = -1},
+                    new SqlParameter("@AcceptAt", SqlDbType.DateTime) { Value = DateTime.Now},
+                    new SqlParameter("@CreateAt", SqlDbType.DateTime) { Value = applypost.CreateAt}
+                };
+                var result1 = await _context.ExecuteDataTable("[dbo].[sp_UpdateApplyPost]", parameters1).JsonDataAsync();
+                if (result1.Status == 1)
+                {
+                    SqlParameter[] parameters2 ={
 
+                        new SqlParameter("@Id", SqlDbType.UniqueIdentifier) { Value = post.Id},
+                        new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value = DBNull.Value},
+                        new SqlParameter("@Status", SqlDbType.Int) { Value = 0},
+                    };
+
+                    var result2 = await _context.ExecuteDataTable("[dbo].[sp_UpdatePostByAccept]", parameters2).JsonDataAsync();
+                    return result2;
+                }
+                return result1;
+            }
             SqlParameter[] parameters ={
                 new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = applypost.Id},
-                new SqlParameter("@WorkerOfServiceCode", SqlDbType.VarChar) { Value = applypost.WorkerOfServiceCode},
-                new SqlParameter("@PostCode", SqlDbType.VarChar) { Value = applypost.PostCode},
-                new SqlParameter("@Status", SqlDbType.Int) { Value = -1},
-                new SqlParameter("@AcceptAt", SqlDbType.DateTime) { Value = DateTime.Now},
-                new SqlParameter("@CreateAt", SqlDbType.DateTime) { Value = applypost.CreateAt}
             };
-            var result = await _context.ExecuteDataTable("[dbo].[sp_UpdateApplyPost]", parameters).JsonDataAsync();
+            var result = await _context.ExecuteDataTable("[dbo].[sp_DeleteApplyPost]", parameters).JsonDataAsync();
             return result;
         }
 
+        public async Task<DynamicResult> customerCancelPostApply(ApplyToPostUpdate model, UserLogin auth)
+        {
+            var customer = await _context.Customers.Include(x => x.User).FirstOrDefaultAsync(x => x.User.Phone == auth.Phone && x.User.Password == Encryptor.Encrypt(auth.Password));
+            if (customer == null)
+            {
 
+                return new DynamicResult() { Message = "Account not found", Data = null, Totalrow = 0, Type = "Error-Validation", Status = 2 };
+
+            }
+            var postofUser = await _context.Posts.Include(x => x.Customer).FirstOrDefaultAsync(x => x.Code == model.postcode && x.Customer.Id == customer.Id);
+            if (postofUser == null)
+            {
+                return new DynamicResult() { Message = "Post not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+            }
+            var workerofservice = await _context.WorkerOfServices.Include(x => x.Worker.User).Include(x => x.Service).FirstOrDefaultAsync(x => x.Code == model.workerofservice);
+            if (workerofservice == null)
+            {
+                return new DynamicResult() { Message = "Not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+            }
+            var applypost = await _context.ApplyToPosts.FirstOrDefaultAsync(x => x.WorkerOfServiceCode == workerofservice.Code && x.PostCode == model.postcode);
+            if (applypost == null)
+            {
+                return new DynamicResult() { Message = " Apply not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+            }
+            SqlParameter[] parameters ={
+
+                    new SqlParameter("@Id", SqlDbType.UniqueIdentifier) { Value = postofUser.Id},
+                    new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value =DBNull.Value},
+                    new SqlParameter("@Status", SqlDbType.Int) { Value = 0},
+                };
+
+            var result = await _context.ExecuteDataTable("[dbo].[sp_UpdatePostByAccept]", parameters).JsonDataAsync();
+            if (result.Status == 1)
+            {
+                SqlParameter[] parameters1 ={
+                    new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = applypost.Id},
+                    new SqlParameter("@WorkerOfServiceCode", SqlDbType.VarChar) { Value = applypost.WorkerOfServiceCode},
+                    new SqlParameter("@PostCode", SqlDbType.VarChar) { Value = applypost.PostCode},
+                    new SqlParameter("@Status", SqlDbType.Int) { Value = 1},
+                    new SqlParameter("@AcceptAt", SqlDbType.DateTime) { Value = DateTime.Now},
+                    new SqlParameter("@CreateAt", SqlDbType.DateTime) { Value = applypost.CreateAt}
+                };
+                var result1 = await _context.ExecuteDataTable("[dbo].[sp_UpdateApplyPost]", parameters1).JsonDataAsync();
+                return result1;
+            }
+            return result;
+        }
+
+        public async Task<DynamicResult> workerCheckInPefectPostApply(ApplyToPostUpdate model, UserLogin auth)
+        {
+            var worker = await _context.Workers.Include(x => x.WorkerOfCategories).Include(x => x.User).FirstOrDefaultAsync(x => x.User.Phone == auth.Phone && x.User.Password == Encryptor.Encrypt(auth.Password));
+            if (worker == null)
+            {
+                return new DynamicResult() { Message = "Account not found", Data = null, Totalrow = 0, Type = "Error-Validation", Status = 2 };
+            }
+            var post = await _context.Posts.Include(x => x.Service).FirstOrDefaultAsync(x => x.Code == model.postcode);
+            if (post == null)
+            {
+                return new DynamicResult() { Message = "Post not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+
+            }
+            var workerofservice = await _context.WorkerOfServices.Include(x => x.Worker.User).Include(x => x.Service).FirstOrDefaultAsync(x => x.Worker.User.Phone == auth.Phone && x.Service.Code == post.Service.Code);
+            if (workerofservice == null)
+            {
+                return new DynamicResult() { Message = "Not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+            }
+            var applypost = await _context.ApplyToPosts.FirstOrDefaultAsync(x => x.WorkerOfServiceCode == workerofservice.Code && x.PostCode == model.postcode);
+            if (applypost == null)
+            {
+                return new DynamicResult() { Message = " Apply not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+            }
+            SqlParameter[] parameters1 ={
+                    new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = applypost.Id},
+                    new SqlParameter("@WorkerOfServiceCode", SqlDbType.VarChar) { Value = applypost.WorkerOfServiceCode},
+                    new SqlParameter("@PostCode", SqlDbType.VarChar) { Value = applypost.PostCode},
+                    new SqlParameter("@Status", SqlDbType.Int) { Value = 3},
+                    new SqlParameter("@AcceptAt", SqlDbType.DateTime) { Value = DateTime.Now},
+                    new SqlParameter("@CreateAt", SqlDbType.DateTime) { Value = applypost.CreateAt}
+                };
+            var result1 = await _context.ExecuteDataTable("[dbo].[sp_UpdateApplyPost]", parameters1).JsonDataAsync();
+            if (result1.Status == 1)
+            {
+                SqlParameter[] parameters2 ={
+
+                        new SqlParameter("@Id", SqlDbType.UniqueIdentifier) { Value = post.Id},
+                        new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value = post.WorkerOfService.Id},
+                        new SqlParameter("@Status", SqlDbType.Int) { Value = 2},
+                    };
+
+                var result2 = await _context.ExecuteDataTable("[dbo].[sp_UpdatePostByAccept]", parameters2).JsonDataAsync();
+                return result2;
+            }
+            return result1;
+        }
+
+        public async Task<DynamicResult> workerCancelCheckInPefectPostApply(ApplyToPostUpdate model, UserLogin auth)
+        {
+           var worker = await _context.Workers.Include(x => x.WorkerOfCategories).Include(x => x.User).FirstOrDefaultAsync(x => x.User.Phone == auth.Phone && x.User.Password == Encryptor.Encrypt(auth.Password));
+            if (worker == null)
+            {
+                return new DynamicResult() { Message = "Account not found", Data = null, Totalrow = 0, Type = "Error-Validation", Status = 2 };
+            }
+            var post = await _context.Posts.Include(x => x.Service).FirstOrDefaultAsync(x => x.Code == model.postcode);
+            if (post == null)
+            {
+                return new DynamicResult() { Message = "Post not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+
+            }
+            var workerofservice = await _context.WorkerOfServices.Include(x => x.Worker.User).Include(x => x.Service).FirstOrDefaultAsync(x => x.Worker.User.Phone == auth.Phone && x.Service.Code == post.Service.Code);
+            if (workerofservice == null)
+            {
+                return new DynamicResult() { Message = "Not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+            }
+            var applypost = await _context.ApplyToPosts.FirstOrDefaultAsync(x => x.WorkerOfServiceCode == workerofservice.Code && x.PostCode == model.postcode);
+            if (applypost == null)
+            {
+                return new DynamicResult() { Message = " Apply not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+            } 
+            SqlParameter[] parameters1 ={
+                    new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = applypost.Id},
+                    new SqlParameter("@WorkerOfServiceCode", SqlDbType.VarChar) { Value = applypost.WorkerOfServiceCode},
+                    new SqlParameter("@PostCode", SqlDbType.VarChar) { Value = applypost.PostCode},
+                    new SqlParameter("@Status", SqlDbType.Int) { Value = 2},
+                    new SqlParameter("@AcceptAt", SqlDbType.DateTime) { Value = DateTime.Now},
+                    new SqlParameter("@CreateAt", SqlDbType.DateTime) { Value = applypost.CreateAt}
+                };
+            var result1 = await _context.ExecuteDataTable("[dbo].[sp_UpdateApplyPost]", parameters1).JsonDataAsync();
+            if (result1.Status == 1)
+            {
+                SqlParameter[] parameters2 ={
+
+                        new SqlParameter("@Id", SqlDbType.UniqueIdentifier) { Value = post.Id},
+                        new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value = post.WorkerOfService.Id},
+                        new SqlParameter("@Status", SqlDbType.Int) { Value = 1},
+                    };
+
+                var result2 = await _context.ExecuteDataTable("[dbo].[sp_UpdatePostByAccept]", parameters2).JsonDataAsync();
+                return result2;
+            }
+            return result1;
+        }
     }
 }

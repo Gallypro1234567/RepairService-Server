@@ -132,7 +132,7 @@ namespace WorkAppReactAPI.Controllers
                 result = await _repository.customerAcceptPostApply(model, auth);
                 if (result.Status == 1)
                 {
-                    var result1 = await _repository.UpdateApplytoPost(model, auth); 
+                    var result1 = await _repository.UpdateApplytoPost(model, auth);
                     return Ok(result1);
                 }
                 return Ok(result);
@@ -150,7 +150,81 @@ namespace WorkAppReactAPI.Controllers
             }
 
         }
+       
+        [Authorize]
+        [HttpPost] 
+        [Route("checkinbyworker/finish")]
+        public async Task<ActionResult<DynamicResult>> checkinByWorker([FromForm] ApplyToPostUpdate model, [FromHeader] HeaderParamaters header)
+        {
+            try
+            {
 
+                var result = new DynamicResult();
+
+                var handler = new JwtSecurityTokenHandler();
+                var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
+                var jsonToken = handler.ReadToken(tokenStr);
+                var tokenS = jsonToken as JwtSecurityToken;
+
+                var auth = new UserLogin()
+                {
+                    Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                    Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                    isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                    Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
+                };
+                result = await _repository.workerCheckInPefectPostApply(model, auth);
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
+                            ex.Message
+                        },
+                    Success = false
+                });
+            }
+
+        }
+        [Authorize]
+        [HttpPost] 
+        [Route("checkinbyworker/cancel")]
+        public async Task<ActionResult<DynamicResult>> checkinByWorkerCancel([FromForm] ApplyToPostUpdate model, [FromHeader] HeaderParamaters header)
+        {
+            try
+            {
+
+                var result = new DynamicResult();
+
+                var handler = new JwtSecurityTokenHandler();
+                var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
+                var jsonToken = handler.ReadToken(tokenStr);
+                var tokenS = jsonToken as JwtSecurityToken;
+
+                var auth = new UserLogin()
+                {
+                    Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                    Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                    isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                    Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
+                };
+                result = await _repository.workerCancelCheckInPefectPostApply(model, auth);
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
+                            ex.Message
+                        },
+                    Success = false
+                });
+            }
+
+        }
         [Authorize]
         [HttpPost]
         [Route("deletebyworker")]
@@ -189,5 +263,44 @@ namespace WorkAppReactAPI.Controllers
             }
 
         }
+        [Authorize]
+        [HttpPost]
+        [Route("deletebycustomer")]
+        public async Task<ActionResult<DynamicResult>> deletePostByIdByCustomer([FromForm] ApplyToPostUpdate model, [FromHeader] HeaderParamaters header)
+        {
+
+            try
+            {
+                var result = new DynamicResult();
+
+                var handler = new JwtSecurityTokenHandler();
+                var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
+                var jsonToken = handler.ReadToken(tokenStr);
+                var tokenS = jsonToken as JwtSecurityToken;
+
+                var auth = new UserLogin()
+                {
+                    Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                    Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                    isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                    Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
+                };
+                result = await _repository.customerCancelPostApply(model, auth);
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
+                            ex.Message
+                        },
+                    Success = false
+                });
+            }
+
+        }
+
     }
 }

@@ -12,12 +12,16 @@ namespace WorkAppReactAPI.Data.Interface
         Task<DynamicResult> getApplytoPostbyWorkerPhone(string phone);
         Task<DynamicResult> AddApplytoPost(ApplyToPostUpdate model, UserLogin auth);
         Task<DynamicResult> UpdateApplytoPost(ApplyToPostUpdate model, UserLogin auth);
-        Task<DynamicResult> customerAcceptPostApply(ApplyToPostUpdate model, UserLogin auth); 
+        Task<DynamicResult> customerAcceptPostApply(ApplyToPostUpdate model, UserLogin auth);
+        Task<DynamicResult> customerCancelPostApply(ApplyToPostUpdate model, UserLogin auth);
+        Task<DynamicResult> workerCheckInPefectPostApply(ApplyToPostUpdate model, UserLogin auth);
+        Task<DynamicResult> workerCancelCheckInPefectPostApply(ApplyToPostUpdate model, UserLogin auth); 
         Task<DynamicResult> DeleteApplytoPost(ApplyToPostUpdate model, UserLogin auth);
     }
     public class ApplyToPostUpdate
     {
         public int status { set; get; }
+        public int poststatus { set; get; }
         public string phone { set; get; }
         public string postcode { set; get; }
         public string workerofservice { set; get; }

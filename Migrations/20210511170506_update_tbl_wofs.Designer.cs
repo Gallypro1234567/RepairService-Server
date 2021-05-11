@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkAppReactAPI.Data;
 
 namespace WorkAppReactAPI.Migrations
 {
     [DbContext(typeof(WorkerServiceContext))]
-    partial class WorkerServiceContextModelSnapshot : ModelSnapshot
+    [Migration("20210511170506_update_tbl_wofs")]
+    partial class update_tbl_wofs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,14 +63,11 @@ namespace WorkAppReactAPI.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("WorkAppReactAPI.Models.Feedback", b =>
+            modelBuilder.Entity("WorkAppReactAPI.Models.Feelback", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreateAt")
                         .HasColumnType("datetime2");
@@ -87,7 +86,7 @@ namespace WorkAppReactAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Feedbacks");
+                    b.ToTable("Feelbacks");
                 });
 
             modelBuilder.Entity("WorkAppReactAPI.Models.HistoryAdress", b =>

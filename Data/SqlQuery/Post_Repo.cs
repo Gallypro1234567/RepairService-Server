@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -289,6 +290,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
             }
             var checkPost = await _context.Posts.FirstOrDefaultAsync(x => x.Code == postCode && x.Customer.Id == isCustomer.Id);
+            var checkPostCode = checkPost.Code;
             if (checkPost == null)
             {
                 return new DynamicResult() { Message = "You can't not delete post of orther user", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
@@ -311,9 +313,54 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 }
 
             }
+            var applyPostList = await _context.ApplyToPosts.Where(x => x.PostCode == checkPostCode).ToListAsync();
+            if (applyPostList.Count() != 0)
+            {
+                foreach (var applypost in applyPostList)
+                {
+                    SqlParameter[] parameters1 ={
+                        new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = applypost.Id},
+                    };
+                    await _context.ExecuteDataTable("[dbo].[sp_DeleteApplyPost]", parameters1).JsonDataAsync();
+                }
+            }
+
             return result;
         }
 
+        public async Task<DynamicResult> GetPostDetailFeeback(string postCode)
+        {
+            var post = await _context.Posts.Include(x => x.Service).Include(x => x.Customer.User).Include(x => x.WorkerOfService.Worker.User).Include(x => x.Service).FirstOrDefaultAsync(x => x.Code == postCode);
+            if (post == null)
+                return new DynamicResult() { Message = "Post not Found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+            var apply = await _context.ApplyToPosts.FirstOrDefaultAsync(x => x.PostCode == post.Code && x.WorkerOfServiceCode == post.WorkerOfService.Code);
+            if (apply == null)
+                return new DynamicResult() { Message = "Apply not Found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
+            var resp = new List<Dictionary<string, object>>();
+            resp.Add(new Dictionary<string, object>()
+            {
+                ["CustomerFullname"] = post.Customer.User.Fullname,
+                ["CustomerPhone"] = post.Customer.User.Phone,
+                ["CustomerAddress"] = post.Customer.User.Address,
+
+                ["WorkerFullname"] = post.WorkerOfService.Worker.User.Fullname,
+                ["WorkerPhone"] = post.WorkerOfService.Worker.User.Phone,
+                ["WorkerAddress"] = post.WorkerOfService.Worker.User.Address,
+                ["WorkerCMND"] = post.WorkerOfService.Worker.CMND,
+                ["WorkerOfServiceCode"] = post.WorkerOfService.Code,
+                
+                ["PostCode"] = post.Code,
+                ["PostTitle"] = post.Title,
+
+                ["ServiceCode"] = post.Service.Code,
+                ["ServiceName"] = post.Service.Name,
+
+                ["PostStatus"] = post.status,
+                ["ApplyStatus"] = apply.Status,
+            });
+            return new DynamicResult() { Message = "Success", Data = resp, Totalrow = 0, Type = "Success", Status = 1 };
+
+        }
     }
 }
