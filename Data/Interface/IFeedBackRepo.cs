@@ -18,7 +18,7 @@ namespace WorkAppReactAPI.Data.Interface
         public string workerofservicecode { set; get; }
         public string postcode { set; get; }
         public string description { set; get; }
-        public string pointRating { set; get; }
+        public double pointRating { set; get; }
 
     }
     public class FeedbackQuery

@@ -11,9 +11,11 @@ namespace WorkAppReactAPI.Models
         [Required]
         public string Code { set; get; }
         public string Title { set; get; }
-        public string Position { set; get; } 
+        public int DistrictId { set; get; } 
+        public int CityId { set; get; }
         public string Description  { set; get; } 
         public string Address { set; get; } 
+
         public string ImageUrl { set; get; } 
         [Required]
         public DateTime CreateAt { set; get; }

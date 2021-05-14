@@ -13,7 +13,7 @@ namespace WorkAppReactAPI.Models
         public string WorkerOfServiceCode { set; get; }
         public string PostCode { set; get; }
         public string Description { set; get; }
-        public int PointRating { set; get; }
+        public double PointRating { set; get; }
         public DateTime? CreateAt { set; get; }
     }
 }

@@ -72,7 +72,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@WorkerOfServiceCode", SqlDbType.VarChar) { Value = model.workerofservicecode},
                     new SqlParameter("@PostCode", SqlDbType.VarChar) { Value = model.postcode},
                     new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.description},
-                    new SqlParameter("@PointRating", SqlDbType.Int) { Value = model.pointRating},
+                    new SqlParameter("@PointRating", SqlDbType.Float) { Value = model.pointRating},
                     new SqlParameter("@CreateAt", SqlDbType.DateTime) { Value = DateTime.Now},
                 };
                 var result = await _context.ExecuteDataTable("[dbo].[sp_InsertFeedBack]", parameters).JsonDataAsync();

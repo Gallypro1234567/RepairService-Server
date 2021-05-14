@@ -140,7 +140,8 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 new SqlParameter("@ServiceID", SqlDbType.UniqueIdentifier) { Value = service.Id},
                 //
                 new SqlParameter("@Title", SqlDbType.NVarChar) { Value = model.Title},
-                new SqlParameter("@Position", SqlDbType.VarChar) { Value = model.Position == null ? DBNull.Value: model.Position},
+                new SqlParameter("@DistrictId", SqlDbType.Int) { Value = model.DistrictId},
+                new SqlParameter("@CityId", SqlDbType.Int) { Value = model.CityId},
                 new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.Description == null ? DBNull.Value : model.Description},
                 new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address  == null ? DBNull.Value: model.Address},
                 new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl == null ? DBNull.Value: model.ImageUrl},
@@ -189,7 +190,8 @@ namespace WorkAppReactAPI.Data.SqlQuery
                  new SqlParameter("@ServiceID", SqlDbType.UniqueIdentifier) { Value = service.Id},
                 //
                 new SqlParameter("@Title", SqlDbType.NVarChar) { Value = model.Title},
-                new SqlParameter("@Position", SqlDbType.VarChar) { Value = model.Position == null ? DBNull.Value: model.Position},
+                new SqlParameter("@DistrictId", SqlDbType.Int) { Value = model.DistrictId},
+                new SqlParameter("@CityId", SqlDbType.Int) { Value = model.CityId},
                 new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.Description == null ? DBNull.Value : model.Description},
                 new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address  == null ? DBNull.Value: model.Address},
                 new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl == null ? DBNull.Value: model.ImageUrl},
@@ -252,7 +254,8 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 new SqlParameter("@ServiceID", SqlDbType.UniqueIdentifier) { Value = post.Service.Id},
                 //
                 new SqlParameter("@Title", SqlDbType.NVarChar) { Value = post.Title},
-                new SqlParameter("@Position", SqlDbType.VarChar) { Value = post.Position == null ? DBNull.Value : post.Position},
+                new SqlParameter("@DistrictId", SqlDbType.Int) { Value = post.DistrictId},
+                new SqlParameter("@CityId", SqlDbType.Int) { Value = post.CityId},
                 new SqlParameter("@Description", SqlDbType.NVarChar) { Value = post.Description == null ? DBNull.Value : post.Description},
                 new SqlParameter("@Address", SqlDbType.NVarChar) { Value = post.Address == null ? DBNull.Value : post.Address},
                 new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = post.ImageUrl == null ? DBNull.Value : post.ImageUrl},
@@ -336,7 +339,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             var apply = await _context.ApplyToPosts.FirstOrDefaultAsync(x => x.PostCode == post.Code && x.WorkerOfServiceCode == post.WorkerOfService.Code);
             if (apply == null)
                 return new DynamicResult() { Message = "Apply not Found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
-
+            var fb = await _context.Feedbacks.FirstOrDefaultAsync(x => x.PostCode == postCode && x.WorkerOfServiceCode == post.WorkerOfService.Code);
             var resp = new List<Dictionary<string, object>>();
             resp.Add(new Dictionary<string, object>()
             {
@@ -349,13 +352,14 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 ["WorkerAddress"] = post.WorkerOfService.Worker.User.Address,
                 ["WorkerCMND"] = post.WorkerOfService.Worker.CMND,
                 ["WorkerOfServiceCode"] = post.WorkerOfService.Code,
-                
+
                 ["PostCode"] = post.Code,
                 ["PostTitle"] = post.Title,
 
                 ["ServiceCode"] = post.Service.Code,
                 ["ServiceName"] = post.Service.Name,
 
+                ["FeedbackStatus"] = fb == null ? 0 : 1,
                 ["PostStatus"] = post.status,
                 ["ApplyStatus"] = apply.Status,
             });
