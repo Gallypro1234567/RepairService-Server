@@ -17,6 +17,8 @@ namespace WorkAppReactAPI.Data.Interface
         Task<DynamicResult> InserPost(PostUpdate model, UserLogin auth);
         Task<DynamicResult> UpdatePostByCustomer(string code, PostUpdate model, UserLogin auth);
         Task<DynamicResult> UpdatePostByWorker(string code, UserLogin auth);
+        Task<DynamicResult> ApprovePostByAdmin(string code, int approval, UserLogin auth);
+
         Task<DynamicResult> DeletePost(string postCode, UserLogin auth);
 
     }
@@ -25,8 +27,12 @@ namespace WorkAppReactAPI.Data.Interface
         public string ServiceCode { set; get; }
         public string WofSCode { set; get; }
         public int Start { set; get; }
+        public string Search { set; get; }
+        public int Approval { set; get; }
         public int Length { set; get; }
         public int Order { set; get; }
+        public int CityId { set; get; }
+        public int DistrictId { set; get; }
         public int? Status { set; get; }
 
     }
@@ -35,9 +41,10 @@ namespace WorkAppReactAPI.Data.Interface
         public string Code { set; get; }
         public string ServiceCode { set; get; }
         public string Title { set; get; }
-        public int DistrictId { set; get; } 
+        public int DistrictId { set; get; }
         public int CityId { set; get; }
-         public string Description { set; get; }
+        public int WardId { set; get; }
+        public string Description { set; get; }
         public string Address { set; get; }
         public string ImageUrl { set; get; }
         public List<IFormFile> Image { set; get; }

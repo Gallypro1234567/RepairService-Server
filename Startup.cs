@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Authorization;
 using WorkAppReactAPI.Configuration;
 using WorkAppReactAPI.Data.SqlQuery;
 using Microsoft.AspNetCore.Http;
+using System;
+using WorkAppReactAPI.Hubs;
 
 namespace WorkAppReactAPI
 {
@@ -58,8 +60,13 @@ namespace WorkAppReactAPI
             // services.AddTransient<IAuthorizationPolicyProvider, MyAuthorizationPolicy>();
             // services.AddSingleton<IAuthorizationHandler, MyAuthorizationHandler>();
 
-            services.AddHttpContextAccessor();
-            services.AddCors();
+            services.AddHttpContextAccessor(); 
+          
+            
+            services.AddSignalR(e => {
+                e.MaximumReceiveMessageSize = 102400000;
+                e.EnableDetailedErrors = true; 
+            });
             // Add DI
             services.AddScoped<IUserRepo, UserRepo>();
             services.AddScoped<IServiceRepo, ServiceRepo>();
@@ -71,6 +78,8 @@ namespace WorkAppReactAPI
             services.AddScoped<IPreferentialRepo, PreferentialRepo>();
             services.AddScoped<IWorkerOfServicesRepo, WorkerOfServicesRepo>();
             services.AddScoped<IFeedBackRepo, FeedBackRepo>();
+            services.AddScoped<INotificationRepo, NotificationRepo>();
+            services.AddScoped<IUserConnectionManager, UserConnectionManager>();
 
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
@@ -115,12 +124,16 @@ namespace WorkAppReactAPI
 
 
             app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
-            });
-
+                {
+                    endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "{controller}/{action=Index}/{id?}");
+                });
+            app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapHub<SignalrHub>("/notificationshub");
+                    endpoints.MapHub<NotificationHub>("/notificationHub");
+                });
             app.UseSpa(spa =>
             {
                 spa.Options.SourcePath = "ClientApp";

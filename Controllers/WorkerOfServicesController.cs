@@ -62,7 +62,27 @@ namespace WorkAppReactAPI.Controllers
         {
             try
             {
+                var formFiles = model.Images;
                 var result = new DynamicResult();
+                var list = new List<String>();
+                if (model.Images != null)
+                    foreach (var file in formFiles)
+                    {
+                        var path = _hostingEnvironment.UploadImage(file, "\\Upload\\Images\\");
+                        if (path.Length == 0)
+                        {
+                            return BadRequest(new DynamicResult()
+                            {
+                                Message = "File không hợp lệ",
+                                Status = 1
+                            });
+                        }
+                        list.Add(path);
+
+                    }
+
+                 model.ImageUrl = list.Count > 0 ? String.Join(",", list.ToArray()) :   "";
+
                 var handler = new JwtSecurityTokenHandler();
                 var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
                 var jsonToken = handler.ReadToken(tokenStr);
@@ -76,6 +96,14 @@ namespace WorkAppReactAPI.Controllers
                     Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
                 };
                 result = await _workerrepository.RegisterWorkerOfServices(model, auth);
+                if (formFiles != null && result.Status != 1)
+                {
+                    foreach (var imageUrl in list)
+                    {
+                        _hostingEnvironment.DeleteImage(imageUrl);
+                    }
+
+                }
                 return Ok(result);
             }
             catch (System.Exception ex)

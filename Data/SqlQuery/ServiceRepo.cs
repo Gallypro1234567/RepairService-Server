@@ -90,7 +90,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@Code", SqlDbType.VarChar) { Value = model.Code},
                     new SqlParameter("@Name", SqlDbType.NVarChar) { Value = model.Name},
                     new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl != null ?  model.ImageUrl : ""},
-                    new SqlParameter("@Description", SqlDbType.VarChar) { Value = model.Description != null ?  model.Description : ""},
+                    new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.Description != null ?  model.Description : ""},
                     new SqlParameter("@CreateAt", SqlDbType.DateTime) { Value = DateTime.Now},
                 };
                 var result = await _context.ExecuteDataTable("[dbo].[sp_InsertService]", parameters).JsonDataAsync();
@@ -134,7 +134,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = service.Id},
                     new SqlParameter("@Name", SqlDbType.NVarChar) { Value = model.Name},
                     new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl == null ? "": model.ImageUrl},
-                    new SqlParameter("@Description", SqlDbType.VarChar) { Value = model.Description == null ?"" : model.Description },
+                    new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.Description == null ?"" : model.Description },
                 };
                 var result = await _context.ExecuteDataTable("[dbo].[sp_UpdateService]", parameters).JsonDataAsync();
                 if (result.Status == 1 && service.ImageUrl != null)

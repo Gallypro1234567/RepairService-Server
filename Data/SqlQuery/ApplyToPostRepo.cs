@@ -44,10 +44,18 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 return new DynamicResult() { Message = "Post not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
 
             }
-            var workerofservice = await _context.WorkerOfServices.Include(x => x.Worker.User).Include(x => x.Service).FirstOrDefaultAsync(x => x.Worker.User.Phone == auth.Phone && x.Service.Code == post.Service.Code);
+            var workerofservice = await _context.WorkerOfServices.Include(x => x.Worker.User).Include(x => x.Service).FirstOrDefaultAsync(x => x.Worker.User.Phone == auth.Phone && x.Service.Code == post.Service.Code && x.isApproval ==1);
             if (workerofservice == null)
             {
-                return new DynamicResult() { Message = "You can't apply post because service is not approval", Data = null, Totalrow = 0, Type = "Error-UnAuthorized", Status = 2 };
+                var res = new List<Dictionary<string, object>>();
+                res.Add(new Dictionary<string, object>()
+                {
+                    ["WorkerOfServiceCode"] = workerofservice.Code,
+                    ["PostCode"] = code,
+                    ["Status"] = -2, // chưa đăng ký/ hoặc duyệt thất bại
+                });
+
+                return new DynamicResult() { Message = "Checked", Data = res, Totalrow = 0, Type = "Success", Status = 1 };
             }
 
             var applypost = await _context.ApplyToPosts.FirstOrDefaultAsync(x => x.WorkerOfServiceCode == workerofservice.Code && x.PostCode == code);
@@ -171,6 +179,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@Id", SqlDbType.UniqueIdentifier) { Value = postofUser.Id},
                     new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value = wofs.Id},
                     new SqlParameter("@Status", SqlDbType.Int) { Value = model.poststatus},
+                    new SqlParameter("@FinishAt", SqlDbType.DateTime) { Value = DateTime.Now}
                 };
 
             var result = await _context.ExecuteDataTable("[dbo].[sp_UpdatePostByAccept]", parameters).JsonDataAsync();
@@ -219,6 +228,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                         new SqlParameter("@Id", SqlDbType.UniqueIdentifier) { Value = post.Id},
                         new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value = DBNull.Value},
                         new SqlParameter("@Status", SqlDbType.Int) { Value = 0},
+                        new SqlParameter("@FinishAt", SqlDbType.DateTime) { Value = DateTime.Now}
                     };
 
                     var result2 = await _context.ExecuteDataTable("[dbo].[sp_UpdatePostByAccept]", parameters2).JsonDataAsync();
@@ -261,7 +271,8 @@ namespace WorkAppReactAPI.Data.SqlQuery
 
                     new SqlParameter("@Id", SqlDbType.UniqueIdentifier) { Value = postofUser.Id},
                     new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value =DBNull.Value},
-                    new SqlParameter("@Status", SqlDbType.Int) { Value = 0},
+                    new SqlParameter("@Status", SqlDbType.Int) { Value = 0}, 
+                    new SqlParameter("@FinishAt", SqlDbType.DateTime) { Value = DateTime.Now}
                 };
 
             var result = await _context.ExecuteDataTable("[dbo].[sp_UpdatePostByAccept]", parameters).JsonDataAsync();
@@ -320,6 +331,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                         new SqlParameter("@Id", SqlDbType.UniqueIdentifier) { Value = post.Id},
                         new SqlParameter("@WorkerOfServiceID", SqlDbType.UniqueIdentifier) { Value = post.WorkerOfService.Id},
                         new SqlParameter("@Status", SqlDbType.Int) { Value = 2},
+                        new SqlParameter("@FinishAt", SqlDbType.DateTime) { Value = DateTime.Now}
                     };
 
                 var result2 = await _context.ExecuteDataTable("[dbo].[sp_UpdatePostByAccept]", parameters2).JsonDataAsync();
@@ -330,7 +342,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
 
         public async Task<DynamicResult> workerCancelCheckInPefectPostApply(ApplyToPostUpdate model, UserLogin auth)
         {
-           var worker = await _context.Workers.Include(x => x.WorkerOfCategories).Include(x => x.User).FirstOrDefaultAsync(x => x.User.Phone == auth.Phone && x.User.Password == Encryptor.Encrypt(auth.Password));
+            var worker = await _context.Workers.Include(x => x.WorkerOfCategories).Include(x => x.User).FirstOrDefaultAsync(x => x.User.Phone == auth.Phone && x.User.Password == Encryptor.Encrypt(auth.Password));
             if (worker == null)
             {
                 return new DynamicResult() { Message = "Account not found", Data = null, Totalrow = 0, Type = "Error-Validation", Status = 2 };
@@ -350,7 +362,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             if (applypost == null)
             {
                 return new DynamicResult() { Message = " Apply not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
-            } 
+            }
             SqlParameter[] parameters1 ={
                     new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = applypost.Id},
                     new SqlParameter("@WorkerOfServiceCode", SqlDbType.VarChar) { Value = applypost.WorkerOfServiceCode},

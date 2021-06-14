@@ -241,6 +241,44 @@ namespace WorkAppReactAPI.Controllers
         }
         [Authorize]
         [HttpPost]
+        [Route("approvalbyadmin")]
+        public async Task<ActionResult<DynamicResult>> approvalPostbyAdmin([FromForm] string code,[FromForm] int approval, [FromHeader] HeaderParamaters header)
+        {
+            try
+            {
+                var result = new DynamicResult();
+                var handler = new JwtSecurityTokenHandler();
+                var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
+                var jsonToken = handler.ReadToken(tokenStr);
+                var tokenS = jsonToken as JwtSecurityToken;
+
+                var auth = new UserLogin()
+                {
+                    Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                    Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                    isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                    Role = int.Parse(tokenS.Claims.First(claim => claim.Type == "Role").Value),
+                };
+                result = await _repository.ApprovePostByAdmin(code, approval, auth);
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+
+
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
+                            ex.Message
+                        },
+                    Success = false
+                });
+            }
+
+        }
+        
+        [Authorize]
+        [HttpPost]
         [Route("delete")]
         public async Task<ActionResult<DynamicResult>> deletePostById([FromQuery] string code, [FromHeader] HeaderParamaters header)
         {

@@ -1,4 +1,4 @@
- 
+
 using Microsoft.EntityFrameworkCore;
 using WorkAppReactAPI.Models;
 
@@ -22,6 +22,7 @@ namespace WorkAppReactAPI.Data
         public DbSet<WorkerOfService> WorkerOfServices { set; get; }
         public DbSet<PreferentialOfService> PreferentialOfServices { set; get; }
 
+        public DbSet<Notification> Notifications { set; get; }
 
     }
 }

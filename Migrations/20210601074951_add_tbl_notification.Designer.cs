@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkAppReactAPI.Data;
 
 namespace WorkAppReactAPI.Migrations
 {
     [DbContext(typeof(WorkerServiceContext))]
-    partial class WorkerServiceContextModelSnapshot : ModelSnapshot
+    [Migration("20210601074951_add_tbl_notification")]
+    partial class add_tbl_notification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,32 +131,17 @@ namespace WorkAppReactAPI.Migrations
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PostCode")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ReceiveBy")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ReceiveByDelete")
-                        .HasColumnType("int");
 
                     b.Property<string>("SendBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SendByDelete")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("isReaded")
-                        .HasColumnType("int");
-
-                    b.Property<int>("status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("type")
-                        .HasColumnType("int");
+                    b.Property<bool>("isReaded")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

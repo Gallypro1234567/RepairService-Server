@@ -28,8 +28,12 @@ namespace WorkAppReactAPI.Data.SqlQuery
             SqlParameter[] parameters ={
                 new SqlParameter("@Code", SqlDbType.VarChar) { Value = model.ServiceCode == null ? DBNull.Value : model.ServiceCode },
                 new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
+                new SqlParameter("@search", SqlDbType.NVarChar) { Value = model.Search == null ? DBNull.Value : model.Search},
+                new SqlParameter("@approval", SqlDbType.Int) { Value = model.Approval},
                 new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
                 new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
+                new SqlParameter("@CityId", SqlDbType.Int) { Value = model.CityId},
+                new SqlParameter("@DistrictId", SqlDbType.Int) { Value = model.DistrictId},
                 new SqlParameter("@status", SqlDbType.Int) { Value = model.Status == null ? DBNull.Value : model.Status},
             };
             var result = await _context.ExecuteDataTable("[dbo].[sp_GetAllPosts]", parameters).JsonDataAsync();
@@ -50,7 +54,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
                 new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
                 new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},
-                new SqlParameter("@status", SqlDbType.Int) { Value = model.Status == null ? DBNull.Value : model.Status},
+                new SqlParameter("@status", SqlDbType.Int) { Value = model.Status == null ? DBNull.Value : model.Status},  
             };
             var result = await _context.ExecuteDataTable("[dbo].[sp_GetRecentlyPosts]", parameters).JsonDataAsync();
             return result;
@@ -140,14 +144,16 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 new SqlParameter("@ServiceID", SqlDbType.UniqueIdentifier) { Value = service.Id},
                 //
                 new SqlParameter("@Title", SqlDbType.NVarChar) { Value = model.Title},
-                new SqlParameter("@DistrictId", SqlDbType.Int) { Value = model.DistrictId},
                 new SqlParameter("@CityId", SqlDbType.Int) { Value = model.CityId},
+                new SqlParameter("@DistrictId", SqlDbType.Int) { Value = model.DistrictId},
+                new SqlParameter("@WardId", SqlDbType.Int) { Value = model.WardId},
                 new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.Description == null ? DBNull.Value : model.Description},
                 new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address  == null ? DBNull.Value: model.Address},
                 new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl == null ? DBNull.Value: model.ImageUrl},
                 new SqlParameter("@FinishAt", SqlDbType.DateTime) { Value = model.FinishAt},
                 //
                 new SqlParameter("@status", SqlDbType.Int) { Value = model.status},
+                new SqlParameter("@approval", SqlDbType.Int) { Value = 0},
             };
             result = await _context.ExecuteDataTable("[dbo].[sp_InsertPost]", parameters).JsonDataAsync();
             return result;
@@ -190,8 +196,9 @@ namespace WorkAppReactAPI.Data.SqlQuery
                  new SqlParameter("@ServiceID", SqlDbType.UniqueIdentifier) { Value = service.Id},
                 //
                 new SqlParameter("@Title", SqlDbType.NVarChar) { Value = model.Title},
-                new SqlParameter("@DistrictId", SqlDbType.Int) { Value = model.DistrictId},
                 new SqlParameter("@CityId", SqlDbType.Int) { Value = model.CityId},
+                new SqlParameter("@DistrictId", SqlDbType.Int) { Value = model.DistrictId},
+                new SqlParameter("@WardId", SqlDbType.Int) { Value = model.WardId},
                 new SqlParameter("@Description", SqlDbType.NVarChar) { Value = model.Description == null ? DBNull.Value : model.Description},
                 new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address  == null ? DBNull.Value: model.Address},
                 new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl == null ? DBNull.Value: model.ImageUrl},
@@ -213,6 +220,47 @@ namespace WorkAppReactAPI.Data.SqlQuery
             return result;
         }
 
+        public async Task<DynamicResult> ApprovePostByAdmin(string code, int approval, UserLogin auth)
+        {
+            var result = new DynamicResult();
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Phone == auth.Phone && x.Password == Encryptor.Encrypt(auth.Password));
+                if (user == null)
+                {
+                    return new DynamicResult() { Message = "Account already Exists", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+
+                }
+                if (user.Role != 0)
+                {
+                    return new DynamicResult() { Message = "You are'nt admin", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+                }
+
+                var post = await _context.Posts.Include(x => x.Customer).Include(x => x.Service).Include(x => x.WorkerOfService).FirstOrDefaultAsync(x => x.Code == code);
+                if (post == null)
+                {
+                    return new DynamicResult() { Message = "Post not found", Data = null, Totalrow = 0, Type = "Error", Status = 2 };
+                } 
+                // 
+                SqlParameter[] parameters ={
+
+                new SqlParameter("@Id", SqlDbType.UniqueIdentifier) { Value = post.Id},
+                new SqlParameter("@Approval", SqlDbType.Int) { Value = approval}, 
+                new SqlParameter("@ApprovalBy", SqlDbType.VarChar) { Value = user.Phone}, 
+            };
+
+                result = await _context.ExecuteDataTable("[dbo].[sp_PostApprovalByAdmin]", parameters).JsonDataAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.Message;
+                result.Status = 2;
+                result.Type = "Error";
+                return result;
+            }
+
+        }
         public async Task<DynamicResult> UpdatePostByWorker(string code, UserLogin auth)
         {
             var result = new DynamicResult();
@@ -256,6 +304,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 new SqlParameter("@Title", SqlDbType.NVarChar) { Value = post.Title},
                 new SqlParameter("@DistrictId", SqlDbType.Int) { Value = post.DistrictId},
                 new SqlParameter("@CityId", SqlDbType.Int) { Value = post.CityId},
+                new SqlParameter("@WardId", SqlDbType.Int) { Value = post.WardId},
                 new SqlParameter("@Description", SqlDbType.NVarChar) { Value = post.Description == null ? DBNull.Value : post.Description},
                 new SqlParameter("@Address", SqlDbType.NVarChar) { Value = post.Address == null ? DBNull.Value : post.Address},
                 new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = post.ImageUrl == null ? DBNull.Value : post.ImageUrl},
@@ -366,5 +415,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             return new DynamicResult() { Message = "Success", Data = resp, Totalrow = 0, Type = "Success", Status = 1 };
 
         }
+
+
     }
 }

@@ -120,7 +120,7 @@ namespace WorkAppReactAPI.Controllers
 
                 if (sqlresult.Status == 1)
                 {
-                    var jwttoken = GenerateJwtToken(new UserLogin() { Phone = model.Phone, Password = model.Password, Role = 1 });
+                    var jwttoken = GenerateJwtToken(new UserLogin() { Phone = model.Phone, Password = model.Password, Role = 1, isCustomer = model.isCustomer  });
                     return Ok(new RegistrationResponse
                     {
                         Success = true,
