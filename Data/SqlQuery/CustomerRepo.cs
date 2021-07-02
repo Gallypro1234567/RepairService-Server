@@ -21,7 +21,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
         }
         public async Task<DynamicResult> getCustomer(Query model)
         {
-              SqlParameter[] parameters ={
+            SqlParameter[] parameters ={
                 new SqlParameter("@start", SqlDbType.Decimal) { Value = model.Start},
                 new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
                 new SqlParameter("@order", SqlDbType.Int) { Value = model.Order}
@@ -83,7 +83,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@Address", SqlDbType.NVarChar) { Value = model.Address}
                 };
             result = await _context.ExecuteDataTable("[dbo].[sp_UpdateCustomer]", parameters1).JsonDataAsync();
-            return result; 
+            return result;
         }
 
         public async Task<DynamicResult> DeleteCustomer(String phone, UserLogin auth)
@@ -109,6 +109,15 @@ namespace WorkAppReactAPI.Data.SqlQuery
                 new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = user.Id}
             };
             var result = await _context.ExecuteDataTable("[dbo].[sp_DeleteCustomer]", parameters).JsonDataAsync();
+            return result;
+        }
+
+        public async Task<DynamicResult> getinfo(string phone)
+        {
+            SqlParameter[] parameters ={
+                new SqlParameter("@Phone", SqlDbType.VarChar) { Value = phone}
+            };
+            var result = await _context.ExecuteDataTable("[dbo].[sp_GetInfoOfUser]", parameters).JsonDataAsync();
             return result;
         }
     }

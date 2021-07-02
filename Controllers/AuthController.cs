@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.IO;
+using System.IdentityModel.Tokens.Jwt; 
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -18,8 +17,7 @@ using WorkAppReactAPI.Assets;
 using WorkAppReactAPI.Configuration;
 using WorkAppReactAPI.Data;
 using WorkAppReactAPI.Data.Interface;
-using WorkAppReactAPI.Dtos.Requests;
-using WorkAppReactAPI.Models;
+using WorkAppReactAPI.Dtos.Requests; 
 using WorkAppReactAPI.Models.Responses;
 
 namespace WorkAppReactAPI.Controllers
@@ -279,6 +277,40 @@ namespace WorkAppReactAPI.Controllers
                     isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
                 };
                 var result = await _users.Detail(tokenModel);
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new RegistrationResponse
+                {
+                    Errors = new List<string>(){
+                            ex.Message
+                        },
+                    Success = false
+                });
+
+            }
+
+        }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost]
+        [Route("managestate")]
+        public async Task<IActionResult> Disable([FromQuery]string phone, [FromForm] int status,[FromHeader] HeaderParamaters header)
+        {
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var tokenStr = header.Authorization.Substring("Bearer ".Length).Trim();
+                var jsonToken = handler.ReadToken(tokenStr);
+                var tokenS = jsonToken as JwtSecurityToken;
+
+                var auth = new UserLogin()
+                {
+                    Phone = tokenS.Claims.First(claim => claim.Type == "Phone").Value,
+                    Password = tokenS.Claims.First(claim => claim.Type == "Password").Value,
+                    isCustomer = bool.Parse(tokenS.Claims.First(claim => claim.Type == "isCustomer").Value),
+                };
+                var result = await _users.DisableAccount(phone, status, auth);
                 return Ok(result);
             }
             catch (System.Exception ex)

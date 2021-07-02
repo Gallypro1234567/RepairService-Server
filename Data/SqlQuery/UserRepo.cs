@@ -19,17 +19,13 @@ namespace WorkAppReactAPI.Data.SqlQuery
 
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly WorkerServiceContext _context;
-         
-        public UserRepo(WorkerServiceContext context,  IWebHostEnvironment webHostEnvironment)
+
+        public UserRepo(WorkerServiceContext context, IWebHostEnvironment webHostEnvironment)
         {
-            _context = context; 
+            _context = context;
             _hostingEnvironment = webHostEnvironment;
         }
-
-        public Task<DynamicResult> Login(UserLogin model)
-        {
-            throw new NotImplementedException();
-        }
+       
 
         public async Task<DynamicResult> Register(UserRegister model)
         {
@@ -140,7 +136,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = user.Id },
                     new SqlParameter("@Phone", SqlDbType.VarChar) { Value = user.Phone},
                     new SqlParameter("@FullName", SqlDbType.NVarChar) { Value = model.Fullname},
-                    
+
                     new SqlParameter("@Sex", SqlDbType.Int) { Value = model.Sex},
                     new SqlParameter("@Email", SqlDbType.VarChar) { Value = model.Email == null ? DBNull.Value: model.Email },
                     new SqlParameter("@ImageUrl", SqlDbType.VarChar) { Value = model.ImageUrl == null ? DBNull.Value: model.ImageUrl },
@@ -162,7 +158,8 @@ namespace WorkAppReactAPI.Data.SqlQuery
                     new SqlParameter("@ImageUrlOfCMND", SqlDbType.VarChar) { Value = model.ImageUrlOfCMND == null ?  DBNull.Value :  model.ImageUrlOfCMND}
                 };
                 result = await _context.ExecuteDataTable("[dbo].[sp_UpdateWorker]", parameters2).JsonDataAsync();
-                if(result.Status == 1 && ImageUrlDelete != null){
+                if (result.Status == 1 && ImageUrlDelete != null)
+                {
                     _hostingEnvironment.DeleteImage(ImageUrlDelete);
                 }
                 return result;
@@ -182,7 +179,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
         {
             var result = new DynamicResult();
             SqlParameter[] parameters2 = {
-                    new SqlParameter("@Phone", SqlDbType.VarChar) { Value = auth.Phone },
+                    new SqlParameter("@Phone", SqlDbType.VarChar) { Value = auth.Phone},
 
                 };
             if (auth.isCustomer)
@@ -196,5 +193,40 @@ namespace WorkAppReactAPI.Data.SqlQuery
             return result;
 
         }
+
+        public async Task<DynamicResult> DisableAccount(string phone, int status, UserLogin Auth)
+        {
+            var result = new DynamicResult();
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Phone == phone);
+                if (user == null)
+                {
+                    return new DynamicResult() { Message = "Không tìm thấy User", Data = null, Totalrow = 0, Type = "Error-Validation", Status = 2 };
+                }
+                var admin = await _context.Users.FirstOrDefaultAsync(x => x.Phone == Auth.Phone && x.Password == Encryptor.Encrypt(Auth.Password));
+                if (admin == null)
+                {
+                    return new DynamicResult() { Message = "Không đủ quyền để xóa dữ liệu, liên hệ quản trị viên", Data = null, Totalrow = 0, Type = "Error-Validation", Status = 2 };
+                }
+                SqlParameter[] parameters = {
+                    new SqlParameter("@ID", SqlDbType.UniqueIdentifier) { Value = user.Id },
+                    new SqlParameter("@status", SqlDbType.Int) { Value = status },
+                };
+                result = await _context.ExecuteDataTable("[dbo].[sp_DisableAccount]", parameters).JsonDataAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new DynamicResult()
+                {
+                    Message = ex.Message,
+                    Status = 2,
+                    Type = "Error"
+                };
+            }
+        }
+
+
     }
 }

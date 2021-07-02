@@ -8,11 +8,11 @@ namespace WorkAppReactAPI.Data.Interface
     public interface IUserRepo
     {
 
-        Task<DynamicResult> Login(UserLogin model);
         Task<DynamicResult> Register(UserRegister model);
-        Task<DynamicResult> Detail(UserLogin auth);
+        Task<DynamicResult> Detail(UserLogin auth); 
         Task<DynamicResult> ChangePassword(UserChangePassword model, UserLogin Auth);
         Task<DynamicResult> UpdateInformation(string phone, UserUpdate model, UserLogin Auth);
+        Task<DynamicResult> DisableAccount(string phone, int status, UserLogin Auth);
 
     }
 }

@@ -9,6 +9,7 @@ namespace WorkAppReactAPI.Data.Interface
     public interface ICustomerRepo
     {
         Task<DynamicResult> getCustomer(Query model);
+        Task<DynamicResult> getinfo(string phone);
         Task<DynamicResult> GetCustomerByPhone(String phone);
         Task<DynamicResult> AddCustomer(UserUpdate model);
         Task<DynamicResult> UpdateCustomer(string phone,UserUpdate model, UserLogin auth);

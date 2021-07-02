@@ -28,7 +28,7 @@ namespace WorkAppReactAPI.Data.SqlQuery
             SqlParameter[] parameters ={
                 new SqlParameter("@Code", SqlDbType.VarChar) { Value = model.ServiceCode == null ? DBNull.Value : model.ServiceCode },
                 new SqlParameter("@start", SqlDbType.Int) { Value = model.Start},
-                new SqlParameter("@search", SqlDbType.NVarChar) { Value = model.Search == null ? DBNull.Value : model.Search},
+                new SqlParameter("@search", SqlDbType.NVarChar) { Value = model.Search == null ? "" : model.Search},
                 new SqlParameter("@approval", SqlDbType.Int) { Value = model.Approval},
                 new SqlParameter("@length", SqlDbType.Int) { Value = model.Length},
                 new SqlParameter("@order", SqlDbType.Int) { Value = model.Order},

@@ -1,4 +1,4 @@
- 
+
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -27,8 +27,17 @@ namespace WorkAppReactAPI.Controllers
             _CustomerRepository = CustomerRepository;
             _workerRepository = workerRepository;
         }
-
-        //GET Customer
+        
+        //GET Customer 
+        [Authorize]
+        [HttpGet]
+        [Route("getinfo")]
+        public async Task<ActionResult<DynamicResult>> getinfo([FromQuery] string phone)
+        {
+            var result = await _CustomerRepository.getinfo(phone);
+            return Ok(result);
+        } 
+         //GET Customer
         [HttpGet]
         [Route("customers")]
         public async Task<ActionResult<DynamicResult>> getCustomer([FromQuery] Query model)
